@@ -16,27 +16,31 @@ pub fn run(input: &str) -> Result<String, AocError> {
     let mut sum = 0;
 
     for line in input.lines() {
-        let mut digits = LineDigits::new();
-
-        for (line_idx, c) in line.char_indices() {
-            if let Some(digit) = c.to_digit(10) {
-                digits.add_digit(digit);
-            } else {
-                let line_sliced = &line[line_idx ..];
-
-                for (num_idx, &num_text) in NUMBER_WORDS.iter().enumerate() {
-                    if line_sliced.starts_with(num_text) {
-                        digits.add_digit(num_idx as u32 + 1);
-                        break;
-                    }
-                }
-            }
-        }
-
-        sum += digits.get_number().ok_or(AocError::NoDigitsInLine(line))?;
+        sum += number_for_line(line)?;
     }
 
     Ok(sum.to_string())
+}
+
+fn number_for_line(line: &str) -> Result<u32, AocError> {
+    let mut digits = LineDigits::new();
+
+    for (line_idx, c) in line.char_indices() {
+        if let Some(digit) = c.to_digit(10) {
+            digits.add_digit(digit);
+        } else {
+            let line_sliced = &line[line_idx ..];
+
+            for (num_idx, &num_text) in NUMBER_WORDS.iter().enumerate() {
+                if line_sliced.starts_with(num_text) {
+                    digits.add_digit(num_idx as u32 + 1);
+                    break;
+                }
+            }
+        }
+    }
+
+    digits.get_number().ok_or(AocError::NoDigitsInLine(line))
 }
 
 #[derive(Error, Debug)]

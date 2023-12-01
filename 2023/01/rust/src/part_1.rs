@@ -4,18 +4,22 @@ pub fn run(input: &str) -> Result<String, AocError> {
     let mut sum = 0;
 
     for line in input.lines() {
-        let mut digits = LineDigits::new();
-
-        for c in line.chars() {
-            if let Some(digit) = c.to_digit(10) {
-                digits.add_digit(digit);
-            }
-        }
-
-        sum += digits.get_number().ok_or(AocError::NoDigitsInLine(line))?;
+        sum += number_for_line(line)?;
     }
 
     Ok(sum.to_string())
+}
+
+fn number_for_line(line: &str) -> Result<u32, AocError> {
+    let mut digits = LineDigits::new();
+
+    for c in line.chars() {
+        if let Some(digit) = c.to_digit(10) {
+            digits.add_digit(digit);
+        }
+    }
+
+    digits.get_number().ok_or(AocError::NoDigitsInLine(line))
 }
 
 #[derive(Error, Debug)]
