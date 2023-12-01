@@ -47,7 +47,7 @@ EOF
     exit 1
   fi
 
-  if ! curl -f "https://adventofcode.com/$YEAR/day/$((DAY))/input" -H "Cookie: session=$(cat "session.txt")" -o "$YEAR/$DAY/problem.txt"; then
+  if ! curl -f "https://adventofcode.com/$YEAR/day/$((DAY))/input" -H "Cookie: session=$(cat "session.txt")" -o "$YEAR/$DAY/input.txt"; then
     cat <<EOF
 Failed to download problem input for year $YEAR day $DAY, see error above. Most
 likely the problem isn't open yet or your session token expired. Please
@@ -64,7 +64,7 @@ prepare_day() {
 
   mkdir -p "$YEAR/$DAY"
 
-  if [[ ! -e "$YEAR/$DAY/problem.txt" ]] && ensure_date "$YEAR" "$DAY"; then
+  if [[ ! -e "$YEAR/$DAY/input.txt" ]] && ensure_date "$YEAR" "$DAY"; then
     download_problem "$YEAR" "$DAY"
   fi
 }
@@ -77,7 +77,7 @@ run_day() {
   local LANGS
   local LANG
 
-  if [[ ! -e "$YEAR/$DAY/problem.txt" ]]; then
+  if [[ ! -e "$YEAR/$DAY/input.txt" ]]; then
     download_problem "$YEAR" "$DAY"
   fi
 
