@@ -29,6 +29,7 @@ fn number_for_line(line: &str) -> Result<u32, AocError> {
 fn digit_from_str(partial_line: &str) -> Option<u32> {
     for (num_idx, &num_text) in NUMBER_WORDS.iter().enumerate() {
         if partial_line.starts_with(num_text) {
+            #[allow(clippy::cast_possible_truncation)]
             return Some(num_idx as u32 + 1);
         }
     }

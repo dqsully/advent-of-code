@@ -1,3 +1,4 @@
+#![deny(clippy::all, clippy::pedantic)]
 use std::{error::Error, fs};
 
 mod part_1;
@@ -18,7 +19,7 @@ where
     E: 'a + Error,
 {
     match func(input) {
-        Ok(answer) => println!("Part {}: {}", num, answer),
-        Err(error) => println!("Part {} error!: {}", num, error),
+        Ok(answer) => println!("Part {num}: {answer}"),
+        Err(error) => println!("Part {num} error!: {answer}"),
     }
 }
