@@ -1,8 +1,10 @@
 use thiserror::Error;
 
-const NUMBER_WORDS: [&str; 9] = [
-    "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
-];
+#[derive(Error, Debug)]
+pub enum AocError<'a> {
+    #[error("no digits found in line {0:?}")]
+    NoDigitsInLine(&'a str),
+}
 
 pub fn run(input: &str) -> Result<String, AocError> {
     let mut sum = 0;
@@ -26,6 +28,10 @@ fn number_for_line(line: &str) -> Result<u32, AocError> {
     digits.get_number().ok_or(AocError::NoDigitsInLine(line))
 }
 
+const NUMBER_WORDS: [&str; 9] = [
+    "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+];
+
 fn digit_from_str(partial_line: &str) -> Option<u32> {
     for (num_idx, &num_text) in NUMBER_WORDS.iter().enumerate() {
         if partial_line.starts_with(num_text) {
@@ -35,12 +41,6 @@ fn digit_from_str(partial_line: &str) -> Option<u32> {
     }
 
     None
-}
-
-#[derive(Error, Debug)]
-pub enum AocError<'a> {
-    #[error("no digits found in line {0:?}")]
-    NoDigitsInLine(&'a str),
 }
 
 struct LineDigits {

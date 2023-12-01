@@ -1,5 +1,11 @@
 use thiserror::Error;
 
+#[derive(Error, Debug)]
+pub enum AocError<'a> {
+    #[error("no digits found in line {0:?}")]
+    NoDigitsInLine(&'a str),
+}
+
 pub fn run(input: &str) -> Result<String, AocError> {
     let mut sum = 0;
 
@@ -20,12 +26,6 @@ fn number_for_line(line: &str) -> Result<u32, AocError> {
     }
 
     digits.get_number().ok_or(AocError::NoDigitsInLine(line))
-}
-
-#[derive(Error, Debug)]
-pub enum AocError<'a> {
-    #[error("no digits found in line {0:?}")]
-    NoDigitsInLine(&'a str),
 }
 
 struct LineDigits {
