@@ -18,7 +18,7 @@ ensure_date() {
   fi
 
   if [[ "$CURRENT_MONTH" -lt 12 ]]; then
-    echo "It's not Decempter in New York yet"
+    echo "It's not December in New York yet"
     return 1
   elif [[ "$CURRENT_MONTH" -gt 12 ]]; then
     return 0
