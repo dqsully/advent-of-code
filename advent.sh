@@ -82,18 +82,18 @@ run_day() {
   fi
 
   if [[ "$#" -eq 0 ]]; then
-    LANGS="$@"
-  else
     LANGS=(rust go ts js)
+  else
+    LANGS="$@"
   fi
 
   for LANG in "${LANGS[@]}"; do
     if [[ -d "$YEAR/$DAY/$LANG" ]]; then
-      pushd "$YEAR/$DAY/$LANG"
+      pushd "$YEAR/$DAY/$LANG" >/dev/null
 
       case "$LANG" in
         rust)
-          cargo run
+          cargo run -q
           ;;
 
         go)
@@ -110,7 +110,7 @@ run_day() {
           ;;
       esac
 
-      popd
+      popd >/dev/null
     fi
   done
 }
