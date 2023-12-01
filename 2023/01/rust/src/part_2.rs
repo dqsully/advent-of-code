@@ -1,15 +1,7 @@
 use thiserror::Error;
 
 const NUMBER_WORDS: [&str; 9] = [
-    "one",
-    "two",
-    "three",
-    "four",
-    "five",
-    "six",
-    "seven",
-    "eight",
-    "nine",
+    "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
 ];
 
 pub fn run(input: &str) -> Result<String, AocError> {
@@ -26,27 +18,28 @@ fn number_for_line(line: &str) -> Result<u32, AocError> {
     let mut digits = LineDigits::new();
 
     for (line_idx, c) in line.char_indices() {
-        if let Some(digit) = c.to_digit(10) {
+        if let Some(digit) = c.to_digit(10).or_else(|| digit_from_str(&line[line_idx..])) {
             digits.add_digit(digit);
-        } else {
-            let line_sliced = &line[line_idx ..];
-
-            for (num_idx, &num_text) in NUMBER_WORDS.iter().enumerate() {
-                if line_sliced.starts_with(num_text) {
-                    digits.add_digit(num_idx as u32 + 1);
-                    break;
-                }
-            }
         }
     }
 
     digits.get_number().ok_or(AocError::NoDigitsInLine(line))
 }
 
+fn digit_from_str(partial_line: &str) -> Option<u32> {
+    for (num_idx, &num_text) in NUMBER_WORDS.iter().enumerate() {
+        if partial_line.starts_with(num_text) {
+            return Some(num_idx as u32 + 1);
+        }
+    }
+
+    None
+}
+
 #[derive(Error, Debug)]
 pub enum AocError<'a> {
     #[error("no digits found in line {0:?}")]
-    NoDigitsInLine(&'a str)
+    NoDigitsInLine(&'a str),
 }
 
 struct LineDigits {

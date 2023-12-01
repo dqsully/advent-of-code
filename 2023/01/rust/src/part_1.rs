@@ -25,7 +25,7 @@ fn number_for_line(line: &str) -> Result<u32, AocError> {
 #[derive(Error, Debug)]
 pub enum AocError<'a> {
     #[error("no digits found in line {0:?}")]
-    NoDigitsInLine(&'a str)
+    NoDigitsInLine(&'a str),
 }
 
 struct LineDigits {

@@ -1,4 +1,4 @@
-use std::{fs, error::Error};
+use std::{error::Error, fs};
 
 mod part_1;
 mod part_2;
@@ -15,10 +15,10 @@ fn main() {
 fn run_part<'a, F, E>(num: i32, input: &'a str, func: F)
 where
     F: FnOnce(&'a str) -> Result<String, E>,
-    E: 'a + Error
+    E: 'a + Error,
 {
     match func(input) {
         Ok(answer) => println!("Part {}: {}", num, answer),
-        Err(error) => println!("Part {} error!: {}", num, error)
+        Err(error) => println!("Part {} error!: {}", num, error),
     }
 }
