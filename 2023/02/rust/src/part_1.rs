@@ -40,6 +40,6 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green
 
         let output = super::run(input);
 
-        assert_eq!(output.unwrap(), "8");
+        assert_eq!(output, "8");
     }
 }
