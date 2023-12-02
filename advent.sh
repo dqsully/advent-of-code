@@ -140,8 +140,8 @@ test_day() {
   local LANGS
   local LANG
 
-  if [[ ! -e "$YEAR/$DAY/input.txt" ]]; then
-    download_problem "$YEAR" "$DAY"
+  if [[ ! -d "$YEAR/$DAY" ]]; then
+    return
   fi
 
   if [[ "$#" -eq 0 ]]; then
