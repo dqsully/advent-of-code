@@ -1,12 +1,4 @@
-use thiserror::Error;
-
-#[derive(Error, Debug)]
-pub enum AocError {
-    #[error("unimplemented")]
-    Unimplemented,
-}
-
-pub fn run(input: &str) -> Result<String, AocError> {
+pub fn run(input: &str) -> String {
     let mut sum = 0;
 
     'line_loop: for (i, line) in input.lines().enumerate() {
@@ -32,7 +24,7 @@ pub fn run(input: &str) -> Result<String, AocError> {
         sum += i + 1;
     }
 
-    Ok(sum.to_string())
+    sum.to_string()
 }
 
 #[cfg(test)]

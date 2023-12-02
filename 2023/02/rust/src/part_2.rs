@@ -1,16 +1,9 @@
-use thiserror::Error;
 use std::cmp;
 
-#[derive(Error, Debug)]
-pub enum AocError {
-    #[error("unimplemented")]
-    Unimplemented,
-}
-
-pub fn run(input: &str) -> Result<String, AocError> {
+pub fn run(input: &str) -> String {
     let mut sum = 0;
 
-    for (i, line) in input.lines().enumerate() {
+    for line in input.lines() {
         let game_input = line.split_once(':').unwrap().1.trim();
 
         let mut min_red = 0;
@@ -27,9 +20,7 @@ pub fn run(input: &str) -> Result<String, AocError> {
                     "red" => min_red = cmp::max(min_red, count),
                     "green" => min_green = cmp::max(min_green, count),
                     "blue" => min_blue = cmp::max(min_blue, count),
-                    _ => {
-                        panic!("unknown color")
-                    }
+                    _ => {}
                 }
             }
         }
@@ -37,7 +28,7 @@ pub fn run(input: &str) -> Result<String, AocError> {
         sum += min_red * min_green * min_blue;
     }
 
-    Ok(sum.to_string())
+    sum.to_string()
 }
 
 #[cfg(test)]

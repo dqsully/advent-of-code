@@ -9,17 +9,28 @@ fn main() {
 
     let input = fs::read_to_string("../input.txt").unwrap();
 
-    run_part(1, &input, part_1::run);
-    run_part(2, &input, part_2::run);
+    part_1::run(&input).print_answer(1);
+    part_2::run(&input).print_answer(2);
 }
 
-fn run_part<'a, F, E>(num: i32, input: &'a str, func: F)
+trait AocAnswer {
+    fn print_answer(&self, part_number: i32);
+}
+
+impl<E> AocAnswer for Result<String, E>
 where
-    F: FnOnce(&'a str) -> Result<String, E>,
-    E: 'a + Error,
+    E: Error
 {
-    match func(input) {
-        Ok(answer) => println!("Part {num}: {answer}"),
-        Err(error) => println!("Part {num} error!: {error}"),
+    fn print_answer(&self, part_number: i32) {
+        match self {
+            Ok(answer) => println!("Part {part_number}: {answer}"),
+            Err(error) => println!("Part {part_number} error!: {error}"),
+        }
+    }
+}
+
+impl AocAnswer for String {
+    fn print_answer(&self, part_number: i32) {
+        println!("Part {part_number}: {self}");
     }
 }
