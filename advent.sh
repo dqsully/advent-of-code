@@ -77,6 +77,10 @@ run_day() {
   local LANGS
   local LANG
 
+  if [[ ! -d "$YEAR/$DAY" ]]; then
+    return
+  fi
+
   if [[ ! -e "$YEAR/$DAY/input.txt" ]]; then
     download_problem "$YEAR" "$DAY"
   fi
@@ -246,7 +250,7 @@ with_day() {
   if [[ "$DAY" == "all" ]]; then
     for_each_day "$YEAR" "$COMMAND" "$@"
   else
-    "$COMMAND" "$YEAR" "$DAY" "$@"
+    "$COMMAND" "$YEAR" "$(printf "%02d" "$DAY")" "$@"
   fi
 }
 
