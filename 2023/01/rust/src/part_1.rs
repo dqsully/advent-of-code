@@ -54,3 +54,19 @@ impl LineDigits {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn example() {
+        let input = r"1abc2
+        pqr3stu8vwx
+        a1b2c3d4e5f
+        treb7uchet
+";
+
+        let output = super::run(input);
+
+        assert_eq!(output.unwrap(), "142");
+    }
+}

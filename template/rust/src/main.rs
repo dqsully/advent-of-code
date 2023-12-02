@@ -20,6 +20,6 @@ where
 {
     match func(input) {
         Ok(answer) => println!("Part {num}: {answer}"),
-        Err(error) => println!("Part {num} error!: {answer}"),
+        Err(error) => println!("Part {num} error!: {error}"),
     }
 }

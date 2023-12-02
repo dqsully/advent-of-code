@@ -69,3 +69,22 @@ impl LineDigits {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn example() {
+        let input = r"two1nine
+        eightwothree
+        abcone2threexyz
+        xtwone3four
+        4nineeightseven2
+        zoneight234
+        7pqrstsixteen
+";
+
+        let output = super::run(input);
+
+        assert_eq!(output.unwrap(), "281");
+    }
+}
