@@ -1,5 +1,5 @@
-use crate::shared::LineDigits;
 use crate::error::Error;
+use crate::shared::LineDigits;
 
 pub fn run(input: &str) -> Result<String, Error> {
     let mut sum = 0;

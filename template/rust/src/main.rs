@@ -1,9 +1,9 @@
 // #![deny(clippy::all, clippy::pedantic)]
 use std::{error::Error, fs};
 
+mod error;
 mod part_1;
 mod part_2;
-mod error;
 mod shared;
 
 fn main() {
@@ -19,7 +19,7 @@ trait AocAnswer {
 
 impl<E> AocAnswer for Result<String, E>
 where
-    E: Error
+    E: Error,
 {
     fn print_answer(&self, part_number: i32) {
         match self {
