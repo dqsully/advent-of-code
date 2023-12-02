@@ -1,13 +1,7 @@
-use thiserror::Error;
+use crate::error::Error;
 
-#[derive(Error, Debug)]
-pub enum AocError {
-    #[error("unimplemented")]
-    Unimplemented,
-}
-
-pub fn run(input: &str) -> Result<String, AocError> {
-    Err(AocError::Unimplemented)
+pub fn run(input: &str) -> Result<String, Error> {
+    Err(Error::Unimplemented)
 }
 
 #[cfg(test)]
