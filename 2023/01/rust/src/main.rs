@@ -3,6 +3,8 @@ use std::{error::Error, fs};
 
 mod part_1;
 mod part_2;
+mod error;
+mod shared;
 
 fn main() {
     let input = fs::read_to_string("../input.txt").unwrap();
