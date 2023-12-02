@@ -1,4 +1,4 @@
-// #![deny(clippy::all, clippy::pedantic)]
+#![deny(clippy::all, clippy::pedantic)]
 use std::{error::Error, fs};
 
 mod part_1;
