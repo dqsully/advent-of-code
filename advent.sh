@@ -93,15 +93,86 @@ run_day() {
 
       case "$LANG" in
         rust)
+          echo "$YEAR/12/$DAY - Rust"
           cargo run -q
+          echo
           ;;
 
         go)
+          echo "$YEAR/12/$DAY - Go"
           go run .
+          echo
           ;;
 
-        ts | js )
+        ts )
+          echo "$YEAR/12/$DAY - TypeScript"
           npm run start
+          echo
+          ;;
+
+        ts )
+          echo "$YEAR/12/$DAY - JavaScript"
+          npm run start
+          echo
+          ;;
+
+        *)
+          echo "Unknown language '$LANG'"
+          echo
+          return 1
+          ;;
+      esac
+
+      popd >/dev/null
+    fi
+  done
+}
+
+test_day() {
+  local YEAR="$1"
+  local DAY="$2"
+  shift 2
+
+  local LANGS
+  local LANG
+
+  if [[ ! -e "$YEAR/$DAY/input.txt" ]]; then
+    download_problem "$YEAR" "$DAY"
+  fi
+
+  if [[ "$#" -eq 0 ]]; then
+    LANGS=(rust go ts js)
+  else
+    LANGS="$@"
+  fi
+
+  for LANG in "${LANGS[@]}"; do
+    if [[ -d "$YEAR/$DAY/$LANG" ]]; then
+      pushd "$YEAR/$DAY/$LANG" >/dev/null
+
+      case "$LANG" in
+        rust)
+          echo "$YEAR/12/$DAY - Rust"
+          cargo test -q
+          echo
+          ;;
+
+        go)
+          echo "$YEAR/12/$DAY - Go"
+          go test ./...
+          echo
+          ;;
+
+        ts )
+          echo "$YEAR/12/$DAY - TypeScript"
+          npm run test
+          echo
+          ;;
+
+        ts )
+          echo "$YEAR/12/$DAY - JavaScript"
+          npm run test
+          echo
           ;;
 
         *)
@@ -193,6 +264,13 @@ run() {
   with_day "$YEAR" run_day "$@"
 }
 
+test() {
+  YEAR="$1"
+  shift
+
+  with_day "$YEAR" test_day "$@"
+}
+
 with_year() {
   local COMMAND="$1"
   local YEAR="$CURRENT_YEAR"
@@ -216,6 +294,7 @@ Usage:
 
 ./advent.sh prepare [year] [day]
 ./advent.sh run [year] [day] [langs...]
+./advent.sh test [year] [day] [langs...]
 EOF
 
   return 1
@@ -235,6 +314,10 @@ case "$COMMAND" in
 
   run)
     with_year run "$@"
+    ;;
+
+  test)
+    with_year test "$@"
     ;;
 
   *)

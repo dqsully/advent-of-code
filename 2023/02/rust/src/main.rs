@@ -5,8 +5,6 @@ mod part_1;
 mod part_2;
 
 fn main() {
-    println!("2023/12/02 - Rust");
-
     let input = fs::read_to_string("../input.txt").unwrap();
 
     part_1::run(&input).print_answer(1);
