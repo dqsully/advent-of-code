@@ -1,6 +1,6 @@
 use thiserror::Error;
 
-#[derive(Error, Debug)]
+#[derive(Error, Debug, PartialEq, Eq)]
 pub enum Error<'a> {
     #[error("no game header found in line {0:?}")]
     NoGameHeaderInLine(&'a str),
