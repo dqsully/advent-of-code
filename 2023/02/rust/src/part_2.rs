@@ -1,34 +1,16 @@
-use std::cmp;
+use crate::error::Error;
+use crate::shared::GameStats;
 
-pub fn run(input: &str) -> String {
+pub fn run(input: &str) -> Result<String, Error> {
     let mut sum = 0;
 
     for line in input.lines() {
-        let game_input = line.split_once(':').unwrap().1.trim();
+        let stats = GameStats::parse_line(line)?;
 
-        let mut min_red = 0;
-        let mut min_green = 0;
-        let mut min_blue = 0;
-
-        for reveal in game_input.split(';') {
-            for cube_set in reveal.split(',') {
-                let (count, color) = cube_set.trim().split_once(' ').unwrap();
-
-                let count = count.parse::<u64>().unwrap();
-
-                match color {
-                    "red" => min_red = cmp::max(min_red, count),
-                    "green" => min_green = cmp::max(min_green, count),
-                    "blue" => min_blue = cmp::max(min_blue, count),
-                    _ => {}
-                }
-            }
-        }
-
-        sum += min_red * min_green * min_blue;
+        sum += stats.max_red * stats.max_green * stats.max_blue;
     }
 
-    sum.to_string()
+    Ok(sum.to_string())
 }
 
 #[cfg(test)]
@@ -44,6 +26,6 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green
 
         let output = super::run(input);
 
-        assert_eq!(output, "2286");
+        assert_eq!(output.unwrap(), "2286");
     }
 }

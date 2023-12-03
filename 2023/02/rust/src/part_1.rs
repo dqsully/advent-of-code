@@ -1,30 +1,18 @@
-pub fn run(input: &str) -> String {
+use crate::error::Error;
+use crate::shared::GameStats;
+
+pub fn run(input: &str) -> Result<String, Error> {
     let mut sum = 0;
 
-    'line_loop: for (i, line) in input.lines().enumerate() {
-        let game_input = line.split_once(':').unwrap().1.trim();
+    for line in input.lines() {
+        let stats = GameStats::parse_line(line)?;
 
-        for reveal in game_input.split(';') {
-            for cube_set in reveal.split(',') {
-                let (count, color) = cube_set.trim().split_once(' ').unwrap();
-
-                let count = count.parse::<i32>().unwrap();
-
-                match color {
-                    "red" if count <= 12 => {},
-                    "green" if count <= 13 => {},
-                    "blue" if count <= 14 => {},
-                    _ => {
-                        continue 'line_loop;
-                    }
-                }
-            }
+        if stats.max_red <= 12 && stats.max_green <= 13 && stats.max_blue <= 14 {
+            sum += stats.id;
         }
-
-        sum += i + 1;
     }
 
-    sum.to_string()
+    Ok(sum.to_string())
 }
 
 #[cfg(test)]
@@ -40,6 +28,6 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green
 
         let output = super::run(input);
 
-        assert_eq!(output, "8");
+        assert_eq!(output.unwrap(), "8");
     }
 }
