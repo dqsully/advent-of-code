@@ -6,11 +6,13 @@ pub fn run(input: &str) -> Result<String, Error> {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+
     #[test]
     fn example() {
         let input = r"";
 
-        let output = super::run(input);
+        let output = run(input);
 
         assert_eq!(output.unwrap(), "");
     }

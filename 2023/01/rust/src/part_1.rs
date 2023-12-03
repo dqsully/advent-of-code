@@ -25,6 +25,8 @@ fn number_for_line(line: &str) -> Result<u32, Error> {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+
     #[test]
     fn example() {
         let input = r"1abc2
@@ -33,7 +35,7 @@ mod tests {
         treb7uchet
 ";
 
-        let output = super::run(input);
+        let output = run(input);
 
         assert_eq!(output.unwrap(), "142");
     }

@@ -40,6 +40,8 @@ fn digit_from_str(partial_line: &str) -> Option<u32> {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+
     #[test]
     fn example() {
         let input = r"two1nine
@@ -51,7 +53,7 @@ mod tests {
         7pqrstsixteen
 ";
 
-        let output = super::run(input);
+        let output = run(input);
 
         assert_eq!(output.unwrap(), "281");
     }
