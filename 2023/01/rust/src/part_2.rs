@@ -41,6 +41,7 @@ fn digit_from_str(partial_line: &str) -> Option<u32> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    pub use crate::error::Error;
 
     #[test]
     fn example() {
@@ -58,7 +59,7 @@ mod tests {
         assert_eq!(output.unwrap(), "281");
     }
 
-    macro_rules! number_for_line_test_happy {
+    macro_rules! number_for_line_test {
         ($suite:ident, $($name:ident: $input:expr => $expected:expr,)*) => {
             mod $suite {
                 use super::*;
@@ -68,32 +69,34 @@ mod tests {
                     fn $name() {
                         let output = number_for_line($input);
 
-                        assert_eq!(output.unwrap(), $expected);
+                        assert_eq!(output, $expected);
                     }
                 )*
             }
         }
     }
 
-    number_for_line_test_happy!(number_for_line_tests,
-        example_line_1: "two1nine" => 29,
-        example_line_2: "eightwothree" => 83,
-        example_line_3: "abcone2threexyz" => 13,
-        example_line_4: "xtwone3four" => 24,
-        example_line_5: "4nineeightseven2" => 42,
-        example_line_6: "zoneight234" => 14,
-        example_line_7: "7pqrstsixteen" => 76,
+    number_for_line_test!(number_for_line_tests,
+        example_line_1: "two1nine" => Ok(29),
+        example_line_2: "eightwothree" => Ok(83),
+        example_line_3: "abcone2threexyz" => Ok(13),
+        example_line_4: "xtwone3four" => Ok(24),
+        example_line_5: "4nineeightseven2" => Ok(42),
+        example_line_6: "zoneight234" => Ok(14),
+        example_line_7: "7pqrstsixteen" => Ok(76),
 
-        overlap_oneight: "oneight" => 18,
-        overlap_twone: "twone" => 21,
-        overlap_threeight: "threeight" => 38,
-        overlap_fiveight: "fiveight" => 58,
-        overlap_sevenine: "sevenine" => 79,
-        overlap_eightwo: "eightwo" => 82,
-        overlap_eighthree: "eighthree" => 83,
-        overlap_nineight: "nineight" => 98,
-        overlap_twoneight: "twoneight" => 28,
-        overlap_eightwoneight: "eightwoneight" => 88,
+        overlap_oneight: "oneight" => Ok(18),
+        overlap_twone: "twone" => Ok(21),
+        overlap_threeight: "threeight" => Ok(38),
+        overlap_fiveight: "fiveight" => Ok(58),
+        overlap_sevenine: "sevenine" => Ok(79),
+        overlap_eightwo: "eightwo" => Ok(82),
+        overlap_eighthree: "eighthree" => Ok(83),
+        overlap_nineight: "nineight" => Ok(98),
+        overlap_twoneight: "twoneight" => Ok(28),
+        overlap_eightwoneight: "eightwoneight" => Ok(88),
+
+        no_numbers: "nonumbers" => Err(Error::NoDigitsInLine("nonumbers")),
     );
 
     macro_rules! digit_from_str_test {

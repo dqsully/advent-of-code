@@ -40,7 +40,7 @@ mod tests {
         assert_eq!(output.unwrap(), "142");
     }
 
-    macro_rules! number_for_line_test_happy {
+    macro_rules! number_for_line_test {
         ($suite:ident, $($name:ident: $input:expr => $expected:expr,)*) => {
             mod $suite {
                 use super::*;
@@ -50,17 +50,19 @@ mod tests {
                     fn $name() {
                         let output = number_for_line($input);
 
-                        assert_eq!(output.unwrap(), $expected);
+                        assert_eq!(output, $expected);
                     }
                 )*
             }
         }
     }
 
-    number_for_line_test_happy!(number_for_line_tests,
-        example_line_1: "1abc2" => 12,
-        example_line_2: "pqr3stu8vwx" => 38,
-        example_line_3: "a1b2c3d4e5f" => 15,
-        example_line_4: "treb7uchet" => 77,
+    number_for_line_test!(number_for_line_tests,
+        example_line_1: "1abc2" => Ok(12),
+        example_line_2: "pqr3stu8vwx" => Ok(38),
+        example_line_3: "a1b2c3d4e5f" => Ok(15),
+        example_line_4: "treb7uchet" => Ok(77),
+
+        no_numbers: "nonumbers" => Err(Error::NoDigitsInLine("nonumbers")),
     );
 }
