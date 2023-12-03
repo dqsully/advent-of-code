@@ -8,24 +8,34 @@ CURRENT_DAY="$(TZ=America/New_York date +%d)"
 ensure_date() {
   local YEAR="$1"
   local DAY="$2"
+  local MESSAGE="$3"
   shift 2
 
   if [[ "$CURRENT_YEAR" -lt "$YEAR" ]]; then
-    echo "It's not $YEAR in New York yet"
+    if [[ ! -z "$MESSAGE" ]]; then
+      echo "$MESSAGE: it's not $YEAR in New York yet"
+    fi
+
     return 1
   elif [[ "$CURRENT_YEAR" -gt "$YEAR" ]]; then
     return 0
   fi
 
   if [[ "$CURRENT_MONTH" -lt 12 ]]; then
-    echo "It's not December in New York yet"
+    if [[ ! -z "$MESSAGE" ]]; then
+      echo "$MESSAGE: it's not December in New York yet"
+    fi
+
     return 1
   elif [[ "$CURRENT_MONTH" -gt 12 ]]; then
     return 0
   fi
 
   if [[ "$CURRENT_DAY" -lt "$DAY" ]]; then
-    echo "It's not Dec $DAY in New York yet"
+    if [[ ! -z "$MESSAGE" ]]; then
+      echo "$MESSAGE: it's not Dec $DAY in New York yet"
+    fi
+
     return 1
   fi
 }
@@ -35,7 +45,7 @@ download_problem() {
   local DAY="$2"
   shift 2
 
-  ensure_date "$YEAR" "$DAY"
+  ensure_date "$YEAR" "$DAY" "Unable to download problem"
 
   if [[ ! -s "session.txt" ]]; then
     cat <<EOF
@@ -64,7 +74,7 @@ prepare_day() {
 
   mkdir -p "$YEAR/$DAY"
 
-  if [[ ! -e "$YEAR/$DAY/input.txt" ]] && ensure_date "$YEAR" "$DAY"; then
+  if [[ ! -e "$YEAR/$DAY/input.txt" ]] && ensure_date "$YEAR" "$DAY" "Skipping downloading problem"; then
     download_problem "$YEAR" "$DAY"
   fi
 }
