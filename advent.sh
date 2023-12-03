@@ -108,7 +108,7 @@ run_day() {
       case "$LANG" in
         rust)
           echo "$YEAR/12/$DAY - Rust"
-          cargo run -q
+          cargo run --release -q
           echo
           ;;
 
