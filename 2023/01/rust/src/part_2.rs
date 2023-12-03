@@ -56,7 +56,7 @@ mod tests {
 
         let output = run(input);
 
-        assert_eq!(output.unwrap(), "281");
+        assert_eq!(output, Ok("281".to_owned()));
     }
 
     macro_rules! number_for_line_test {

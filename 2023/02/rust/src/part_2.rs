@@ -28,6 +28,6 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green
 
         let output = run(input);
 
-        assert_eq!(output.unwrap(), "2286");
+        assert_eq!(output, Ok("2286".to_owned()));
     }
 }

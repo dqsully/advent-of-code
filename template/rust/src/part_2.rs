@@ -14,6 +14,6 @@ mod tests {
 
         let output = run(input);
 
-        assert_eq!(output.unwrap(), "");
+        assert_eq!(output, Ok("".to_owned()));
     }
 }
