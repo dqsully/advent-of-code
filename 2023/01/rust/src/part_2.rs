@@ -59,7 +59,7 @@ mod tests {
     }
 
     macro_rules! number_for_line_test_happy {
-        ($suite:ident, $($name: ident: $input:expr => $expected:expr,)*) => {
+        ($suite:ident, $($name:ident: $input:expr => $expected:expr,)*) => {
             mod $suite {
                 use super::*;
 
@@ -97,7 +97,7 @@ mod tests {
     );
 
     macro_rules! digit_from_str_test {
-        ($suite:ident, $($name: ident: $input:expr => $expected:expr,)*) => {
+        ($suite:ident, $($name:ident: $input:expr => $expected:expr,)*) => {
             mod $suite {
                 use super::*;
 

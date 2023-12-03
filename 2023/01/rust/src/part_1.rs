@@ -41,7 +41,7 @@ mod tests {
     }
 
     macro_rules! number_for_line_test_happy {
-        ($suite:ident, $($name: ident: $input:expr => $expected:expr,)*) => {
+        ($suite:ident, $($name:ident: $input:expr => $expected:expr,)*) => {
             mod $suite {
                 use super::*;
 
