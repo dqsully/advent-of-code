@@ -3,6 +3,13 @@
 version = 3
 
 [[package]]
+name = "aoc_helpers"
+version = "0.1.0"
+dependencies = [
+ "thiserror",
+]
+
+[[package]]
 name = "proc-macro2"
 version = "1.0.70"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -18,13 +25,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5267fca4496028628a95160fc423a33e8b2e6af8a5302579e322e4b520293cae"
 dependencies = [
  "proc-macro2",
-]
-
-[[package]]
-name = "rust"
-version = "0.1.0"
-dependencies = [
- "thiserror",
 ]
 
 [[package]]

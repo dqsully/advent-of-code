@@ -1,5 +1,5 @@
 [package]
-name = "aoc_2023_day_02"
+name = "aoc_YYYY_day_DD"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 thiserror = "1.0.50"
+aoc_helpers = { path = "../../../other/helpers/rust" }

@@ -1,5 +1,7 @@
 use crate::error::Error;
-use crate::shared::{neighbors_8, EngineSchematic};
+use crate::shared::EngineSchematic;
+use aoc_helpers::neighbors::neighbors_8;
+use aoc_helpers::neighbors::Grid2D;
 use std::collections::HashSet;
 
 pub fn run(input: &str) -> Result<String, Error> {

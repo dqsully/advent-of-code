@@ -48,5 +48,3 @@ To get started, log into Advent of Code, find your `session` cookie value, and p
 
 ## Templates
 Inside the `template/` directory, I have starter templates for different languages that I copy to each day to simplify solving it. These templates are designed so that I can attempt to solve a problem as quick as possible when it's released, and then come back later and improve my solution.
-
-Also, while I could make shared libraries with common functionality for each of these solutions, I've opted to keep each solution standalone so that managing them is easier.
