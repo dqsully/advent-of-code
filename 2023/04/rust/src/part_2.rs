@@ -8,8 +8,6 @@ pub fn run(input: &str) -> Result<String, Error> {
         let card_wins = Card::parse(line)?.compute_wins();
         let copies = tracker.get_stored_copies() + 1;
 
-        dbg!(&tracker, card_wins, copies);
-
         tracker.next_card();
         tracker.add_card(card_wins, copies);
 
