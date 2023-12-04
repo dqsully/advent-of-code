@@ -1,6 +1,5 @@
 use crate::error::Error;
 use crate::shared::EngineSchematic;
-use aoc_helpers::neighbors::neighbors_8;
 use aoc_helpers::neighbors::Grid2D;
 use std::collections::HashSet;
 
@@ -12,7 +11,7 @@ pub fn run(input: &str) -> Result<String, Error> {
 
     for (x, y, byte) in schematic.iter() {
         if byte == b'*' {
-            for (x, y) in neighbors_8(x, y, schematic.width(), schematic.height()) {
+            for (x, y, _) in schematic.neighbors_8(x, y) {
                 if let Some(id) = schematic.number_id_at(x, y) {
                     gears.insert(id);
                 }
