@@ -6,6 +6,14 @@ version = 3
 name = "aoc_2023_day_02"
 version = "0.1.0"
 dependencies = [
+ "aoc_helpers",
+ "thiserror",
+]
+
+[[package]]
+name = "aoc_helpers"
+version = "0.1.0"
+dependencies = [
  "thiserror",
 ]
 
