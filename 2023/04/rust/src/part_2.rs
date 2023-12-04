@@ -1,51 +1,61 @@
-use std::collections::HashSet;
-
-use crate::error::Error;
+use crate::{error::Error, shared::Card};
 
 pub fn run(input: &str) -> Result<String, Error> {
     let mut cards = 0;
-    let mut win_buf: Vec<(u32, u32)> = Vec::new();
+    let mut tracker = CopiesTracker::new();
 
     for line in input.lines() {
-        let game = line.split_once(':').unwrap().1.trim();
+        let card_wins = Card::parse(line)?.compute_wins();
+        let copies = tracker.get_stored_copies() + 1;
 
-        let (winning, drawn) = game.split_once('|').unwrap();
+        dbg!(&tracker, card_wins, copies);
 
-        let winning = winning.trim()
-            .split(' ')
-            .filter(|txt| !txt.is_empty())
-            .map(|txt| txt.parse::<u32>().unwrap())
-            .collect::<HashSet<_>>();
-
-        let drawn = drawn.trim()
-            .split(' ')
-            .filter(|txt| !txt.is_empty())
-            .map(|txt| txt.parse::<u32>().unwrap())
-            .collect::<Vec<_>>();
-
-        let mut card_wins = 0;
-
-        for num in drawn {
-            if winning.contains(&num) {
-                card_wins += 1;
-            }
-        }
-
-        let copies = win_buf.iter().map(|(_, copies)| copies).sum::<u32>() + 1;
-        win_buf = win_buf
-            .into_iter()
-            .map(|(n, copies)| (n - 1, copies))
-            .filter(|&(n, _)| n > 0)
-            .collect();
-
-        if card_wins > 0 {
-            win_buf.push((card_wins, copies));
-        }
+        tracker.next_card();
+        tracker.add_card(card_wins, copies);
 
         cards += copies;
     }
 
     Ok(cards.to_string())
+}
+
+#[derive(Debug)]
+struct CopiesTracker {
+    remaining: Vec<(usize, u32)>,
+}
+
+impl CopiesTracker {
+    fn new() -> CopiesTracker {
+        CopiesTracker {
+            remaining: Vec::new(),
+        }
+    }
+
+    fn get_stored_copies(&self) -> u32 {
+        self.remaining.iter().map(|(_, copies)| copies).sum()
+    }
+
+    fn next_card(&mut self) {
+        let mut i = 0;
+
+        while i < self.remaining.len() {
+            let n = &mut self.remaining[i].0;
+
+            *n -= 1;
+
+            if *n == 0 {
+                self.remaining.swap_remove(i);
+            } else {
+                i += 1;
+            }
+        }
+    }
+
+    fn add_card(&mut self, card_wins: usize, copies: u32) {
+        if card_wins > 0 {
+            self.remaining.push((card_wins, copies));
+        }
+    }
 }
 
 #[cfg(test)]

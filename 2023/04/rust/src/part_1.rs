@@ -1,37 +1,13 @@
-use std::collections::HashSet;
-
-use crate::error::Error;
+use crate::{error::Error, shared::Card};
 
 pub fn run(input: &str) -> Result<String, Error> {
     let mut wins = 0;
 
     for line in input.lines() {
-        let game = line.split_once(':').unwrap().1.trim();
-
-        let (winning, drawn) = game.split_once('|').unwrap();
-
-        let winning = winning.trim()
-            .split(' ')
-            .filter(|txt| !txt.is_empty())
-            .map(|txt| txt.parse::<u32>().unwrap())
-            .collect::<HashSet<_>>();
-
-        let drawn = drawn.trim()
-            .split(' ')
-            .filter(|txt| !txt.is_empty())
-            .map(|txt| txt.parse::<u32>().unwrap())
-            .collect::<Vec<_>>();
-
-        let mut card_wins = 0;
-
-        for num in drawn {
-            if winning.contains(&num) {
-                card_wins += 1;
-            }
-        }
+        let card_wins = Card::parse(line)?.compute_wins();
 
         if card_wins > 0 {
-            wins += 1 << card_wins - 1;
+            wins += 1 << (card_wins - 1);
         }
     }
 
