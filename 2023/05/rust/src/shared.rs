@@ -163,7 +163,7 @@ impl Mappings {
         }
 
         // Append any remaining upstream mappings
-        if up_value.is_some(){
+        if up_value.is_some() {
             while let Some(up_map) = &up_value {
                 out.push(up_map.clone());
                 up_value = up_iter.next();

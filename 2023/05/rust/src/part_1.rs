@@ -1,4 +1,7 @@
-use crate::{error::Error, shared::{Almanac, Mapping, Mappings}};
+use crate::{
+    error::Error,
+    shared::{Almanac, Mapping, Mappings},
+};
 
 pub fn run(input: &str) -> Result<String, Error> {
     let mut almanac = Almanac::parse(input);
@@ -7,8 +10,11 @@ pub fn run(input: &str) -> Result<String, Error> {
     let seed_ranges = almanac
         .seeds
         .iter()
-        .map(|&i| i..i+1)
-        .map(|r| Mapping{source: r.clone(), dest: r})
+        .map(|&i| i..i + 1)
+        .map(|r| Mapping {
+            source: r.clone(),
+            dest: r,
+        })
         .collect::<Vec<_>>();
 
     // Merge mappings from upstream (source) to downstream (dest) to create one
@@ -25,7 +31,8 @@ pub fn run(input: &str) -> Result<String, Error> {
     // Sort the mappings by dest so we can start with the smallest mapped dests
     combined.sort_by_dest();
 
-    combined.0
+    combined
+        .0
         .first()
         .ok_or(Error::NoSmallestFound)
         .map(|m| m.dest.start.to_string())
