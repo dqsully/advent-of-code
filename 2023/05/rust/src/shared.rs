@@ -1,4 +1,4 @@
-use std::cmp::{min, max};
+use std::cmp::{max, min};
 use std::ops::Range;
 
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -29,25 +29,31 @@ impl Mapping {
         assert_eq!(results.len(), 3);
 
         Mapping {
-            source: results[1]..results[1]+results[2],
-            dest: results[0]..results[0]+results[2],
+            source: results[1]..results[1] + results[2],
+            dest: results[0]..results[0] + results[2],
         }
     }
 
     pub fn intersection(&self, upstream: &Mapping) -> Option<(Mapping, Remainders, Remainders)> {
-        let intersected = max(self.source.start, upstream.dest.start)..min(self.source.end, upstream.dest.end);
+        let intersected =
+            max(self.source.start, upstream.dest.start)..min(self.source.end, upstream.dest.end);
 
         if !intersected.is_empty() {
             let intersection = Mapping {
-                source: (intersected.start - upstream.dest.start + upstream.source.start)..(intersected.end - upstream.dest.start + upstream.source.start),
-                dest: (intersected.start - self.source.start + self.dest.start)..(intersected.end - self.source.start + self.dest.start),
+                source: (intersected.start - upstream.dest.start + upstream.source.start)
+                    ..(intersected.end - upstream.dest.start + upstream.source.start),
+                dest: (intersected.start - self.source.start + self.dest.start)
+                    ..(intersected.end - self.source.start + self.dest.start),
             };
 
-            Some((intersection, self.subtract(MappingSide::Source, &intersected), upstream.subtract(MappingSide::Dest, &intersected)))
+            Some((
+                intersection,
+                self.subtract(MappingSide::Source, &intersected),
+                upstream.subtract(MappingSide::Dest, &intersected),
+            ))
         } else {
             None
         }
-
     }
 
     pub fn subtract(&self, side: MappingSide, range: &Range<usize>) -> Remainders {
@@ -64,8 +70,8 @@ impl Mapping {
             let len = range.start - self_range.start;
 
             before = Some(Mapping {
-                source: self.source.start..self.source.start+len,
-                dest: self.dest.start..self.dest.start+len,
+                source: self.source.start..self.source.start + len,
+                dest: self.dest.start..self.dest.start + len,
             });
         }
 
@@ -77,15 +83,12 @@ impl Mapping {
             let len = self_range.end - range.end;
 
             after = Some(Mapping {
-                source: self.source.end-len..self.source.end,
-                dest: self.dest.end-len..self.dest.end,
+                source: self.source.end - len..self.source.end,
+                dest: self.dest.end - len..self.dest.end,
             });
         }
 
-        Remainders {
-            before,
-            after,
-        }
+        Remainders { before, after }
     }
 
     pub fn map(&self, source: usize) -> usize {
@@ -217,7 +220,10 @@ impl Almanac {
             let contents = contents.trim();
 
             if header == "seeds" {
-                almanac.seeds = contents.split(' ').map(|s| s.parse::<usize>().unwrap()).collect();
+                almanac.seeds = contents
+                    .split(' ')
+                    .map(|s| s.parse::<usize>().unwrap())
+                    .collect();
             } else if header.ends_with(" map") {
                 let map_type = header.split_once(' ').unwrap().0;
 

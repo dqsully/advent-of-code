@@ -3,7 +3,8 @@ use crate::{error::Error, shared::Almanac};
 pub fn run(input: &str) -> Result<String, Error> {
     let mut almanac = Almanac::parse(input);
 
-    let mut combined = almanac.humidity_to_location
+    let mut combined = almanac
+        .humidity_to_location
         .merge(&mut almanac.temperature_to_humidity)
         .merge(&mut almanac.light_to_temperature)
         .merge(&mut almanac.water_to_light)
@@ -13,11 +14,14 @@ pub fn run(input: &str) -> Result<String, Error> {
 
     combined.sort_by_source();
 
-    let min: usize = almanac.seeds.iter().copied()
+    almanac
+        .seeds
+        .iter()
+        .copied()
         .map(|seed| combined.map(seed))
-        .min().unwrap();
-
-    Ok(min.to_string())
+        .min()
+        .ok_or(Error::NoSmallestFound)
+        .map(|n| n.to_string())
 }
 
 #[cfg(test)]

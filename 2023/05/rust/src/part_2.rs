@@ -1,4 +1,4 @@
-use std::cmp::{min, max};
+use std::cmp::{max, min};
 
 use crate::{error::Error, shared::Almanac};
 
@@ -6,13 +6,17 @@ pub fn run(input: &str) -> Result<String, Error> {
     let mut almanac = Almanac::parse(input);
 
     // Convert every pair of seed numbers into ranges
-    let mut seed_ranges = almanac.seeds.windows(2).step_by(2)
-        .map(|i| i[0]..i[0]+i[1])
+    let mut seed_ranges = almanac
+        .seeds
+        .windows(2)
+        .step_by(2)
+        .map(|i| i[0]..i[0] + i[1])
         .collect::<Vec<_>>();
 
     // Merge mappings from downstream (dest) to upstream (source) to create one
     // precomputed mapping
-    let mut combined = almanac.humidity_to_location
+    let mut combined = almanac
+        .humidity_to_location
         .merge(&mut almanac.temperature_to_humidity)
         .merge(&mut almanac.light_to_temperature)
         .merge(&mut almanac.water_to_light)
@@ -90,7 +94,8 @@ pub fn run(input: &str) -> Result<String, Error> {
         (Some(mapped), None) => Ok(mapped),
         (None, Some(unmapped)) => Ok(unmapped),
         (None, None) => Err(Error::NoSmallestFound),
-    }.map(|n| n.to_string())
+    }
+    .map(|n| n.to_string())
 }
 
 #[cfg(test)]
