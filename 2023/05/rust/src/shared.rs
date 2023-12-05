@@ -90,14 +90,6 @@ impl Mapping {
 
         Remainders { before, after }
     }
-
-    pub fn map(&self, source: usize) -> usize {
-        if self.source.contains(&source) {
-            return source - self.source.start + self.dest.start;
-        }
-
-        source
-    }
 }
 
 #[derive(Default, Debug)]
@@ -116,12 +108,14 @@ impl Mappings {
         self.0.sort_unstable_by_key(|m| m.dest.start)
     }
 
-    pub fn merge(&mut self, upstream: &mut Mappings) -> Mappings {
+    pub fn merge(&mut self, downstream: &mut Mappings) -> Mappings {
+        let upstream = self;
+
         // Map upstream dests to downstream sources and merge when intersecting
         upstream.sort_by_dest();
-        self.sort_by_source();
+        downstream.sort_by_source();
 
-        let mut down_iter = self.0.iter().cloned();
+        let mut down_iter = downstream.0.iter().cloned();
         let mut up_iter = upstream.0.iter().cloned();
 
         let mut down_value = down_iter.next();
@@ -134,9 +128,7 @@ impl Mappings {
             if let Some((intersection, down_rem, up_rem)) = down_map.intersection(up_map) {
                 // upstream dest intersects with downstream source
 
-                if let Some(down_before) = down_rem.before {
-                    out.push(down_before);
-                } else if let Some(up_before) = up_rem.before {
+                if let Some(up_before) = up_rem.before {
                     out.push(up_before);
                 }
 
@@ -159,7 +151,7 @@ impl Mappings {
                 // downstream source starts before upstream dest but neither
                 // overlap, add and get next downstream mapping
 
-                out.push(down_map.clone());
+                // out.push(down_map.clone());
                 down_value = down_iter.next();
             } else {
                 // upstream dest starts before downstream source but neither
@@ -170,13 +162,8 @@ impl Mappings {
             }
         }
 
-        // Append any remaining upstream/downstream mappings
-        if down_value.is_some() {
-            while let Some(down_map) = &down_value {
-                out.push(down_map.clone());
-                down_value = down_iter.next();
-            }
-        } else {
+        // Append any remaining upstream mappings
+        if up_value.is_some(){
             while let Some(up_map) = &up_value {
                 out.push(up_map.clone());
                 up_value = up_iter.next();
@@ -184,17 +171,6 @@ impl Mappings {
         }
 
         Mappings(out)
-    }
-
-    /// **MUST be sorted by source!**
-    pub fn map(&self, source: usize) -> usize {
-        let i = self.0.partition_point(|m| m.source.start <= source);
-
-        if i > 0 {
-            self.0[i - 1].map(source)
-        } else {
-            source
-        }
     }
 }
 

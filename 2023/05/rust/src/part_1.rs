@@ -1,27 +1,34 @@
-use crate::{error::Error, shared::Almanac};
+use crate::{error::Error, shared::{Almanac, Mapping, Mappings}};
 
 pub fn run(input: &str) -> Result<String, Error> {
     let mut almanac = Almanac::parse(input);
 
-    let mut combined = almanac
-        .humidity_to_location
-        .merge(&mut almanac.temperature_to_humidity)
-        .merge(&mut almanac.light_to_temperature)
-        .merge(&mut almanac.water_to_light)
-        .merge(&mut almanac.fertilizer_to_water)
-        .merge(&mut almanac.soil_to_fertilizer)
-        .merge(&mut almanac.seed_to_soil);
-
-    combined.sort_by_source();
-
-    almanac
+    // Convert every seed into a 1-sized range
+    let seed_ranges = almanac
         .seeds
         .iter()
-        .copied()
-        .map(|seed| combined.map(seed))
-        .min()
+        .map(|&i| i..i+1)
+        .map(|r| Mapping{source: r.clone(), dest: r})
+        .collect::<Vec<_>>();
+
+    // Merge mappings from upstream (source) to downstream (dest) to create one
+    // precomputed seed-to-location mapping
+    let mut combined = Mappings(seed_ranges)
+        .merge(&mut almanac.seed_to_soil)
+        .merge(&mut almanac.soil_to_fertilizer)
+        .merge(&mut almanac.fertilizer_to_water)
+        .merge(&mut almanac.water_to_light)
+        .merge(&mut almanac.light_to_temperature)
+        .merge(&mut almanac.temperature_to_humidity)
+        .merge(&mut almanac.humidity_to_location);
+
+    // Sort the mappings by dest so we can start with the smallest mapped dests
+    combined.sort_by_dest();
+
+    combined.0
+        .first()
         .ok_or(Error::NoSmallestFound)
-        .map(|n| n.to_string())
+        .map(|m| m.dest.start.to_string())
 }
 
 #[cfg(test)]
