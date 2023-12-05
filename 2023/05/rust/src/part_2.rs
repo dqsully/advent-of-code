@@ -1,20 +1,12 @@
+use std::collections::BTreeSet;
+
 use crate::error::Error;
 
 pub fn run(input: &str) -> Result<String, Error> {
     let almanac = Almanac::parse(input);
 
-    let max_range = almanac.seeds.windows(2).step_by(2)
-        .map(|i| i[0]+i[1])
-        .max().unwrap();
-
-    let min_range = almanac.seeds.windows(2).step_by(2)
-        .map(|i| i[0])
-        .min().unwrap();
-
-    dbg!(min_range, max_range);
-    dbg!(max_range - min_range);
-
-    let rendered = (min_range..max_range)
+    let min: usize = almanac.seeds.windows(2).step_by(2)
+        .flat_map(|i| i[0]..i[0]+i[1])
         .map(|n| almanac.seed_to_soil.convert(n))
         .map(|n| almanac.soil_to_fertilizer.convert(n))
         .map(|n| almanac.fertilizer_to_water.convert(n))
@@ -22,21 +14,16 @@ pub fn run(input: &str) -> Result<String, Error> {
         .map(|n| almanac.light_to_temperature.convert(n))
         .map(|n| almanac.temperature_to_humidity.convert(n))
         .map(|n| almanac.humidity_to_location.convert(n))
-        .collect::<Vec<usize>>();
-
-    let min: usize = almanac.seeds.windows(2).step_by(2)
-        .flat_map(|i| i[0]..i[0]+i[1])
-        .map(|s| rendered[s - min_range])
         .min().unwrap();
 
     Ok(min.to_string())
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 struct Mapping {
-    dest_start: usize,
     source_start: usize,
     range_len: usize,
+    dest_start: usize,
 }
 
 impl Mapping {
@@ -59,15 +46,15 @@ impl Mapping {
 }
 
 #[derive(Default, Debug)]
-struct Mappings(Vec<Mapping>);
+struct Mappings(BTreeSet<Mapping>);
 
 impl Mappings {
     fn parse(contents: &str) -> Mappings {
-        Mappings(contents.lines().map(Mapping::parse).collect::<Vec<_>>())
+        Mappings(contents.lines().map(Mapping::parse).collect())
     }
 
     fn convert(&self, source: usize) -> usize {
-        for mapping in &self.0 {
+        if let Some(mapping) = self.0.range(..=Mapping {source_start: source, range_len: usize::MAX, dest_start: usize::MAX}).last() {
             if (mapping.source_start .. mapping.source_start + mapping.range_len).contains(&source) {
                 return source - mapping.source_start + mapping.dest_start;
             }
