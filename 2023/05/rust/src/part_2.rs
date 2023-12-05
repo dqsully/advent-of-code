@@ -1,114 +1,96 @@
-use std::collections::BTreeSet;
+use std::cmp::{min, max};
 
-use crate::error::Error;
+use crate::{error::Error, shared::Almanac};
 
 pub fn run(input: &str) -> Result<String, Error> {
-    let almanac = Almanac::parse(input);
+    let mut almanac = Almanac::parse(input);
 
-    let min: usize = almanac.seeds.windows(2).step_by(2)
-        .flat_map(|i| i[0]..i[0]+i[1])
-        .map(|n| almanac.seed_to_soil.convert(n))
-        .map(|n| almanac.soil_to_fertilizer.convert(n))
-        .map(|n| almanac.fertilizer_to_water.convert(n))
-        .map(|n| almanac.water_to_light.convert(n))
-        .map(|n| almanac.light_to_temperature.convert(n))
-        .map(|n| almanac.temperature_to_humidity.convert(n))
-        .map(|n| almanac.humidity_to_location.convert(n))
-        .min().unwrap();
+    // Convert every pair of seed numbers into ranges
+    let mut seed_ranges = almanac.seeds.windows(2).step_by(2)
+        .map(|i| i[0]..i[0]+i[1])
+        .collect::<Vec<_>>();
 
-    Ok(min.to_string())
-}
+    // Merge mappings from downstream (dest) to upstream (source) to create one
+    // precomputed mapping
+    let mut combined = almanac.humidity_to_location
+        .merge(&mut almanac.temperature_to_humidity)
+        .merge(&mut almanac.light_to_temperature)
+        .merge(&mut almanac.water_to_light)
+        .merge(&mut almanac.fertilizer_to_water)
+        .merge(&mut almanac.soil_to_fertilizer)
+        .merge(&mut almanac.seed_to_soil);
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
-struct Mapping {
-    source_start: usize,
-    range_len: usize,
-    dest_start: usize,
-}
+    // Sort the seed ranges (start/end doesn't matter because there's no overlaps)
+    seed_ranges.sort_unstable_by_key(|r| r.end);
 
-impl Mapping {
-    fn parse(line: &str) -> Mapping {
-        let results = line
-            .trim()
-            .split(' ')
-            .filter(|txt| !txt.is_empty())
-            .map(|s| s.parse::<usize>().unwrap())
-            .collect::<Vec<_>>();
+    // Sort the mappings by dest so we can start with the smallest mapped dests
+    combined.sort_by_dest();
 
-        assert_eq!(results.len(), 3);
+    let mut smallest_mapped = None;
 
-        Mapping {
-            dest_start: results[0],
-            source_start: results[1],
-            range_len: results[2],
+    for mapping in &combined.0 {
+        // Find the first seed range that ends after the mapping starts
+        let i = seed_ranges.partition_point(|r| r.end <= mapping.source.start);
+
+        if i == seed_ranges.len() {
+            // All seed ranges end before mapping starts
+            continue;
         }
+
+        // r may overlap with mapping, and if it does, it's the first one
+        // that does
+        let r = &seed_ranges[i];
+
+        if r.start >= mapping.source.end {
+            // Seed range skipped entire mapping, no overlap
+            continue;
+        }
+
+        // r overlaps, find least common number in seed range and mapping
+        // source, then map it
+        smallest_mapped = Some(mapping.map(max(r.start, mapping.source.start)));
+        break;
     }
-}
 
-#[derive(Default, Debug)]
-struct Mappings(BTreeSet<Mapping>);
+    // Sort the mappings by source so that we can find gaps in the sources
+    combined.sort_by_source();
 
-impl Mappings {
-    fn parse(contents: &str) -> Mappings {
-        Mappings(contents.lines().map(Mapping::parse).collect())
-    }
+    let mut smallest_unmapped = None;
 
-    fn convert(&self, source: usize) -> usize {
-        if let Some(mapping) = self.0.range(..=Mapping {source_start: source, range_len: usize::MAX, dest_start: usize::MAX}).last() {
-            if (mapping.source_start .. mapping.source_start + mapping.range_len).contains(&source) {
-                return source - mapping.source_start + mapping.dest_start;
+    'unmapped_search: for mut r in seed_ranges.iter().cloned() {
+        // Find the first mapping that starts after the seed range's start
+        let mut i = combined.0.partition_point(|m| m.source.start <= r.start);
+
+        // Go to the last mapping that starts before or at the seed range's
+        // start (if any)
+        i = i.saturating_sub(1);
+
+        // Iterate through mappings starting at i until mapping start is after
+        // seed range's end
+        for mapping in &combined.0[i..] {
+            if mapping.source.start >= r.end {
+                break;
             }
-        }
 
-        source
-    }
-}
-
-#[derive(Default, Debug)]
-struct Almanac {
-    seeds: Vec<usize>,
-
-    seed_to_soil: Mappings,
-    soil_to_fertilizer: Mappings,
-    fertilizer_to_water: Mappings,
-    water_to_light: Mappings,
-    light_to_temperature: Mappings,
-    temperature_to_humidity: Mappings,
-    humidity_to_location: Mappings,
-}
-
-impl Almanac {
-    fn parse(input: &str) -> Almanac {
-        let mut almanac: Almanac = Default::default();
-
-        for section in input.split("\n\n") {
-            let (header, contents) = section.split_once(":").unwrap();
-            let contents = contents.trim();
-
-            if header == "seeds" {
-                almanac.seeds = contents.split(' ').map(|s| s.parse::<usize>().unwrap()).collect();
-            } else if header.ends_with(" map") {
-                let map_type = header.split_once(' ').unwrap().0;
-
-                let mappings = Mappings::parse(contents);
-
-                match map_type {
-                    "seed-to-soil" => almanac.seed_to_soil = mappings,
-                    "soil-to-fertilizer" => almanac.soil_to_fertilizer = mappings,
-                    "fertilizer-to-water" => almanac.fertilizer_to_water = mappings,
-                    "water-to-light" => almanac.water_to_light = mappings,
-                    "light-to-temperature" => almanac.light_to_temperature = mappings,
-                    "temperature-to-humidity" => almanac.temperature_to_humidity = mappings,
-                    "humidity-to-location" => almanac.humidity_to_location = mappings,
-                    _ => panic!("unknown map type {map_type}"),
-                };
+            if mapping.source.start < r.start && mapping.source.end >= r.start {
+                // Mapping overlaps start of seed range, update seed range to
+                // start at mapping's end
+                r.start = mapping.source.end;
             } else {
-                panic!("invalid header {header}");
+                // Mapping doesn't overlap start of seed range, meaning start of
+                // seed range is smallest unmapped number
+                smallest_unmapped = Some(r.start);
+                break 'unmapped_search;
             }
         }
-
-        almanac
     }
+
+    match (smallest_mapped, smallest_unmapped) {
+        (Some(mapped), Some(unmapped)) => Ok(min(mapped, unmapped)),
+        (Some(mapped), None) => Ok(mapped),
+        (None, Some(unmapped)) => Ok(unmapped),
+        (None, None) => Err(Error::NoSmallestFound),
+    }.map(|n| n.to_string())
 }
 
 #[cfg(test)]

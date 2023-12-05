@@ -2,6 +2,6 @@ use thiserror::Error;
 
 #[derive(Error, Debug, PartialEq, Eq)]
 pub enum Error {
-    #[error("unimplemented")]
-    Unimplemented,
+    #[error("no smallest number found")]
+    NoSmallestFound,
 }
