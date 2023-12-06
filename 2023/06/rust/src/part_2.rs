@@ -1,26 +1,24 @@
-use crate::error::Error;
+use crate::{error::Error, shared::valid_inputs_for_problem};
 
 pub fn run(input: &str) -> Result<String, Error> {
     let (times, distances) = input.split_once('\n').unwrap();
 
-    let time = times.split_once(':').unwrap().1.trim()
+    let time = parse_line(times)?;
+    let distance = parse_line(distances)?;
+
+    Ok(valid_inputs_for_problem(time, distance).to_string())
+}
+
+fn parse_line(line: &str) -> Result<f64, Error> {
+    line.split_once(':')
+        .ok_or(Error::MissingLineHeader)?
+        .1
+        .trim()
         .chars()
         .filter(|&c| c != ' ')
         .collect::<String>()
-        .parse::<f64>().unwrap();
-    let distance = distances.split_once(':').unwrap().1.trim()
-        .chars()
-        .filter(|&c| c != ' ')
-        .collect::<String>()
-        .parse::<f64>().unwrap();
-
-
-    let o = (time*time/4.0 - distance).sqrt();
-
-    let min = (-o + time/2.0).floor() as i32;
-    let max = (o + time/2.0).ceil() as i32 - 1;
-
-    Ok((max - min).to_string())
+        .parse::<f64>()
+        .map_err(Error::from)
 }
 
 #[cfg(test)]
