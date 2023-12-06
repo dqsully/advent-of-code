@@ -33,6 +33,6 @@ mod tests {
 
         let output = run(input);
 
-        assert_eq!(output, Ok("288".to_owned()));
+        assert_eq!(output, Ok("71503".to_owned()));
     }
 }
