@@ -49,11 +49,11 @@ impl<'a> Grid2D for TextMap<'a> {
         self.map.get(y).and_then(|row| row.get(x))
     }
 
-    fn iter(&self) -> impl Iterator<Item = (usize, usize, u8)> {
+    fn iter(&self) -> impl Iterator<Item = (usize, usize, &u8)> {
         self.map
             .iter()
             .enumerate()
-            .flat_map(|(y, row)| row.iter().enumerate().map(move |(x, &byte)| (x, y, byte)))
+            .flat_map(|(y, row)| row.iter().enumerate().map(move |(x, byte)| (x, y, byte)))
     }
 }
 
@@ -103,16 +103,23 @@ impl Grid2D for TextMapMut {
         self.map.get(y).and_then(|row| row.get(x))
     }
 
-    fn iter(&self) -> impl Iterator<Item = (usize, usize, u8)> {
+    fn iter(&self) -> impl Iterator<Item = (usize, usize, &u8)> {
         self.map
             .iter()
             .enumerate()
-            .flat_map(|(y, row)| row.iter().enumerate().map(move |(x, &byte)| (x, y, byte)))
+            .flat_map(|(y, row)| row.iter().enumerate().map(move |(x, byte)| (x, y, byte)))
     }
 }
 
 impl Grid2DMut for TextMapMut {
     fn get_mut(&mut self, x: usize, y: usize) -> Option<&mut u8> {
         self.map.get_mut(y).and_then(|row| row.get_mut(x))
+    }
+
+    fn iter_mut(&mut self) -> impl Iterator<Item = (usize, usize, &mut u8)> {
+        self.map
+            .iter_mut()
+            .enumerate()
+            .flat_map(|(y, row)| row.iter_mut().enumerate().map(move |(x, byte)| (x, y, byte)))
     }
 }
