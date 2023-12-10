@@ -1,4 +1,4 @@
-// #![deny(clippy::all, clippy::pedantic)]
+#![deny(clippy::all, clippy::pedantic)]
 use aoc_helpers::answer::AocAnswer;
 use std::fs;
 

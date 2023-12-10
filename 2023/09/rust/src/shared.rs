@@ -21,10 +21,10 @@ impl From<&Vec<i64>> for OASISPredictor {
     fn from(numbers: &Vec<i64>) -> Self {
         let mut counters = Vec::new();
 
-        for &number in numbers.iter() {
+        for &number in numbers {
             let mut diff = number;
 
-            for counter in counters.iter_mut() {
+            for counter in &mut counters {
                 diff -= *counter;
                 *counter += diff;
             }

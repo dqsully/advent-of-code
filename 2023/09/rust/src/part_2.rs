@@ -3,10 +3,12 @@ use std::num::ParseIntError;
 use crate::{error::Error, shared::OASISPredictor};
 
 pub fn run(input: &str) -> Result<String, Error> {
-    let mut predictors = input.lines()
+    let mut predictors = input
+        .lines()
         .map(|line| {
-            let mut numbers = line.split(' ')
-                .map(|s| s.parse::<i64>())
+            let mut numbers = line
+                .split(' ')
+                .map(str::parse)
                 .collect::<Result<Vec<_>, ParseIntError>>()?;
 
             numbers.reverse();
@@ -15,7 +17,8 @@ pub fn run(input: &str) -> Result<String, Error> {
         })
         .collect::<Result<Vec<_>, Error>>()?;
 
-    let sum_of_nexts = predictors.iter_mut()
+    let sum_of_nexts = predictors
+        .iter_mut()
         .map(|p| p.next().unwrap())
         .sum::<i64>();
 
