@@ -13,7 +13,7 @@ pub fn run(input: &str) -> Result<String, Error> {
             b'0'..=b'9' | b'.' => {} // Do nothing
             _ => {
                 // Symbol
-                for (x, y, _) in schematic.neighbors_8(x, y) {
+                for (x, y, _, _) in schematic.neighbors_8(x, y) {
                     if let Some(id) = schematic.number_id_at(x, y) {
                         number_ids.insert(id);
                     }

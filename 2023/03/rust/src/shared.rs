@@ -17,7 +17,7 @@ impl<'a> EngineSchematic<'a> {
 
         let mut num_buffer = String::new();
 
-        for (_, _, byte) in text_map.iter() {
+        for (_, _, &byte) in text_map.iter() {
             if let b'0'..=b'9' = byte {
                 num_buffer.push(byte as char);
 

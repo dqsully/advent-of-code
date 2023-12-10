@@ -9,9 +9,9 @@ pub fn run(input: &str) -> Result<String, Error> {
     let mut sum = 0;
     let mut gears = HashSet::with_capacity(8); // Reused to avoid excess heap allocations
 
-    for (x, y, byte) in schematic.iter() {
+    for (x, y, &byte) in schematic.iter() {
         if byte == b'*' {
-            for (x, y, _) in schematic.neighbors_8(x, y) {
+            for (x, y, _, _) in schematic.neighbors_8(x, y) {
                 if let Some(id) = schematic.number_id_at(x, y) {
                     gears.insert(id);
                 }
