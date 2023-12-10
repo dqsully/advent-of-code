@@ -1,3 +1,4 @@
+#[allow(clippy::module_name_repetitions)]
 pub trait AocAnswer {
     fn print_aoc_answer(&self, part_number: i32);
 }

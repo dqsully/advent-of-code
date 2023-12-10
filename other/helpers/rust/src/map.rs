@@ -5,6 +5,7 @@ use crate::{
     Error,
 };
 
+#[allow(clippy::module_name_repetitions)]
 pub struct Map2D<T> {
     map: Vec<T>,
     height: usize,

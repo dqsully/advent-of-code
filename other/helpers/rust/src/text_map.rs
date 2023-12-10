@@ -6,6 +6,8 @@ pub struct TextMap<'a> {
 }
 
 impl<'a> TextMap<'a> {
+    /// # Errors
+    /// * `Error::InconsistentMapWidth` - map has inconsistent line length (map width)
     pub fn parse(source: &str) -> Result<TextMap, Error> {
         let mut map = Vec::new();
         let mut width = None;

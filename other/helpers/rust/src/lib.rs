@@ -1,3 +1,5 @@
+#![deny(clippy::all, clippy::pedantic)]
+
 pub mod answer;
 pub mod error;
 pub mod map;

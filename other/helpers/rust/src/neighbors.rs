@@ -59,6 +59,7 @@ const CARDINAL_OFFSETS: [Range<usize>; 16] = [
 ];
 
 impl Direction {
+    #[must_use]
     pub fn reverse(mut self) -> Direction {
         match self & Direction::LeftRight {
             Direction::Nowhere | Direction::LeftRight => {}
@@ -73,10 +74,12 @@ impl Direction {
         self
     }
 
+    #[must_use]
     pub fn num_cardinals(self) -> u32 {
         (self as u8).count_ones()
     }
 
+    #[must_use]
     pub fn cardinals(self) -> &'static [Direction] {
         &CARDINALS[CARDINAL_OFFSETS[self as u8 as usize].clone()]
     }
@@ -86,7 +89,7 @@ impl std::ops::BitOr for Direction {
     type Output = Direction;
 
     fn bitor(self, rhs: Self) -> Self::Output {
-        unsafe { *(&((self as u8) | (rhs as u8)) as *const u8 as *const Direction) }
+        unsafe { *(&((self as u8) | (rhs as u8)) as *const u8).cast::<Direction>() }
     }
 }
 
@@ -100,7 +103,7 @@ impl std::ops::BitAnd for Direction {
     type Output = Direction;
 
     fn bitand(self, rhs: Self) -> Self::Output {
-        unsafe { *(&((self as u8) & (rhs as u8)) as *const u8 as *const Direction) }
+        unsafe { *(&((self as u8) & (rhs as u8)) as *const u8).cast::<Direction>() }
     }
 }
 
@@ -114,7 +117,7 @@ impl std::ops::BitXor for Direction {
     type Output = Direction;
 
     fn bitxor(self, rhs: Self) -> Self::Output {
-        unsafe { *(&((self as u8) ^ (rhs as u8)) as *const u8 as *const Direction) }
+        unsafe { *(&((self as u8) ^ (rhs as u8)) as *const u8).cast::<Direction>() }
     }
 }
 
@@ -124,6 +127,7 @@ impl std::ops::BitXorAssign for Direction {
     }
 }
 
+#[allow(clippy::module_name_repetitions)]
 pub fn neighbors_8(
     x: usize,
     y: usize,
@@ -155,6 +159,7 @@ pub fn neighbors_8(
         })
 }
 
+#[allow(clippy::module_name_repetitions)]
 pub fn neighbors_4(
     x: usize,
     y: usize,
@@ -164,6 +169,7 @@ pub fn neighbors_4(
     neighbors_8(x, y, width, height).filter(move |&(x_o, y_o, _)| (x == x_o) ^ (y == y_o))
 }
 
+#[must_use]
 pub fn offset_direction(
     mut x: usize,
     mut y: usize,
@@ -172,7 +178,7 @@ pub fn offset_direction(
     mut d: Direction,
 ) -> Option<(usize, usize)> {
     if d & Direction::LeftRight == Direction::LeftRight {
-        d ^= Direction::LeftRight
+        d ^= Direction::LeftRight;
     }
     if d & Direction::UpDown == Direction::UpDown {
         d ^= Direction::UpDown;
