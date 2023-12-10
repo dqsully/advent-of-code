@@ -1,52 +1,32 @@
-use std::collections::HashMap;
-
 use num::Integer;
 
-use crate::error::Error;
+use crate::{error::Error, shared::parse_camel_map};
 
 pub fn run(input: &str) -> Result<String, Error> {
-    let (steps_text, nodes_text) = input.split_once("\n\n").unwrap();
-
-    let steps = steps_text.trim().chars().collect::<Vec<_>>();
-
-    let mut nodes: HashMap<&str, Node> = HashMap::new();
-
-    for line in nodes_text.lines() {
-        let (key, values) = line.split_once(" = ").unwrap();
-        let (left, right) = values.trim_matches(&['(', ')']).split_once(", ").unwrap();
-
-        nodes.insert(key, Node {left, right});
-    }
+    let (steps, nodes) = parse_camel_map(input)?;
 
     let mut result: u64 = 1;
 
-    for mut node in nodes.keys().cloned() {
-        if node.ends_with('A') {
-            let mut steps_taken = 0;
+    for mut node in nodes.keys().copied().filter(|n| n.ends_with('A')) {
+        let mut steps_taken = 0;
 
-            for step in steps.iter().copied().cycle() {
-                node = match step {
-                    'L' => nodes[node].left,
-                    'R' => nodes[node].right,
-                    _ => panic!("unexpected step {}", step),
-                };
-                steps_taken += 1;
+        for step in steps.iter().copied().cycle() {
+            node = match step {
+                'L' => nodes[node].left,
+                'R' => nodes[node].right,
+                _ => return Err(Error::InvalidMapFormat),
+            };
+            steps_taken += 1;
 
-                if node.ends_with('Z') {
-                    break;
-                }
+            if node.ends_with('Z') {
+                break;
             }
-
-            result = result.lcm(&steps_taken);
         }
+
+        result = result.lcm(&steps_taken);
     }
 
     Ok(result.to_string())
-}
-
-struct Node<'a> {
-    left: &'a str,
-    right: &'a str,
 }
 
 #[cfg(test)]
