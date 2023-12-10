@@ -1,7 +1,4 @@
-use crate::{
-    neighbors::Grid2D,
-    Error,
-};
+use crate::{neighbors::Grid2D, Error};
 
 pub struct TextMap<'a> {
     map: Vec<&'a [u8]>,

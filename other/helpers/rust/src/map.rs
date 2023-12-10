@@ -1,6 +1,9 @@
 use std::str::FromStr;
 
-use crate::{neighbors::{Grid2D, Grid2DMut}, Error};
+use crate::{
+    neighbors::{Grid2D, Grid2DMut},
+    Error,
+};
 
 pub struct Map2D<T> {
     map: Vec<T>,
@@ -11,7 +14,7 @@ pub struct Map2D<T> {
 impl<T> Map2D<T> {
     pub fn new(width: usize, height: usize, default_value: T) -> Map2D<T>
     where
-        T: Clone
+        T: Clone,
     {
         Map2D {
             map: vec![default_value; width * height],
@@ -23,7 +26,7 @@ impl<T> Map2D<T> {
     pub fn new_parallel<M>(other: &M, default_value: T) -> Map2D<T>
     where
         M: Grid2D,
-        T: Clone
+        T: Clone,
     {
         Map2D::new(other.width(), other.height(), default_value)
     }

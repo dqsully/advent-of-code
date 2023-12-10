@@ -1,4 +1,7 @@
-use std::{cmp::{max, min, Ordering}, ops::Range};
+use std::{
+    cmp::{max, min, Ordering},
+    ops::Range,
+};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 #[repr(u8)]
@@ -22,20 +25,17 @@ pub enum Direction {
 }
 
 const CARDINALS: [Direction; 12] = [
-    Direction::Up, // 0
-    Direction::Down, // 1
-    Direction::Left, // 2
+    Direction::Up,    // 0
+    Direction::Down,  // 1
+    Direction::Left,  // 2
     Direction::Right, // 3
-
-    Direction::Up, // 4
-    Direction::Down, // 5
+    Direction::Up,    // 4
+    Direction::Down,  // 5
     Direction::Right, // 6
-
-    Direction::Up, // 7
-    Direction::Left, // 8
+    Direction::Up,    // 7
+    Direction::Left,  // 8
     Direction::Right, // 9
-
-    Direction::Up, // 10
+    Direction::Up,    // 10
     Direction::Right, // 11
 ];
 
@@ -86,9 +86,7 @@ impl std::ops::BitOr for Direction {
     type Output = Direction;
 
     fn bitor(self, rhs: Self) -> Self::Output {
-        unsafe {
-            *(&((self as u8) | (rhs as u8)) as *const u8 as *const Direction)
-        }
+        unsafe { *(&((self as u8) | (rhs as u8)) as *const u8 as *const Direction) }
     }
 }
 
@@ -102,9 +100,7 @@ impl std::ops::BitAnd for Direction {
     type Output = Direction;
 
     fn bitand(self, rhs: Self) -> Self::Output {
-        unsafe {
-            *(&((self as u8) & (rhs as u8)) as *const u8 as *const Direction)
-        }
+        unsafe { *(&((self as u8) & (rhs as u8)) as *const u8 as *const Direction) }
     }
 }
 
@@ -118,9 +114,7 @@ impl std::ops::BitXor for Direction {
     type Output = Direction;
 
     fn bitxor(self, rhs: Self) -> Self::Output {
-        unsafe {
-            *(&((self as u8) ^ (rhs as u8)) as *const u8 as *const Direction)
-        }
+        unsafe { *(&((self as u8) ^ (rhs as u8)) as *const u8 as *const Direction) }
     }
 }
 
@@ -167,8 +161,7 @@ pub fn neighbors_4(
     width: usize,
     height: usize,
 ) -> impl Iterator<Item = (usize, usize, Direction)> {
-    neighbors_8(x, y, width, height)
-        .filter(move |&(x_o, y_o, _)| (x == x_o) ^ (y == y_o))
+    neighbors_8(x, y, width, height).filter(move |&(x_o, y_o, _)| (x == x_o) ^ (y == y_o))
 }
 
 pub fn offset_direction(
@@ -225,16 +218,29 @@ pub trait Grid2D {
     fn get(&self, x: usize, y: usize) -> Option<&Self::Item>;
     fn iter(&self) -> impl Iterator<Item = (usize, usize, &Self::Item)>;
 
-    fn neighbors_8(&self, x: usize, y: usize) -> impl Iterator<Item = (usize, usize, Direction, &Self::Item)> {
+    fn neighbors_8(
+        &self,
+        x: usize,
+        y: usize,
+    ) -> impl Iterator<Item = (usize, usize, Direction, &Self::Item)> {
         neighbors_8(x, y, self.width(), self.height())
             .filter_map(|(x, y, d)| Some((x, y, d, self.get(x, y)?)))
     }
-    fn neighbors_4(&self, x: usize, y: usize) -> impl Iterator<Item = (usize, usize, Direction, &Self::Item)> {
+    fn neighbors_4(
+        &self,
+        x: usize,
+        y: usize,
+    ) -> impl Iterator<Item = (usize, usize, Direction, &Self::Item)> {
         neighbors_4(x, y, self.width(), self.height())
             .filter_map(|(x, y, d)| Some((x, y, d, self.get(x, y)?)))
     }
 
-    fn offset_direction(&self, x: usize, y: usize, d: Direction) -> Option<(usize, usize, &Self::Item)> {
+    fn offset_direction(
+        &self,
+        x: usize,
+        y: usize,
+        d: Direction,
+    ) -> Option<(usize, usize, &Self::Item)> {
         offset_direction(x, y, self.width(), self.height(), d)
             .and_then(|(x, y)| Some((x, y, self.get(x, y)?)))
     }
@@ -242,7 +248,7 @@ pub trait Grid2D {
 
 impl<T> Grid2D for &T
 where
-    T: Grid2D
+    T: Grid2D,
 {
     type Item = T::Item;
 
@@ -265,7 +271,7 @@ where
 
 impl<T> Grid2D for &mut T
 where
-    T: Grid2D
+    T: Grid2D,
 {
     type Item = T::Item;
 
@@ -299,7 +305,7 @@ pub trait Grid2DMut: Grid2D {
 
 impl<T> Grid2DMut for &mut T
 where
-    T: Grid2DMut
+    T: Grid2DMut,
 {
     fn get_mut(&mut self, x: usize, y: usize) -> Option<&mut Self::Item> {
         (**self).get_mut(x, y)
