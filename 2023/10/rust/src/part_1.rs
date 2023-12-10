@@ -1,22 +1,29 @@
-use aoc_helpers::{text_map::TextMap, neighbors::{Grid2D, Direction}};
+use aoc_helpers::{
+    neighbors::{Direction, Grid2D},
+    text_map::TextMap,
+};
 
-use crate::{error::Error, shared::{infer_start_direction, direction_for_byte, find_start}};
+use crate::{
+    error::Error,
+    shared::{direction_for_byte, find_start, infer_start_direction},
+};
 
 pub fn run(input: &str) -> Result<String, Error> {
-    // Parse the input as a 2d map of lines
     let map = TextMap::parse(input)?;
 
-    // Find the 'S' starting point
     let (start_x, start_y) = find_start(&map).ok_or(Error::StartNotFound)?;
+    let (start_d, _) =
+        infer_start_direction(&map, start_x, start_y).ok_or(Error::StartInferFailed)?;
 
-    // Infer what would be the start instead of 'S' based on its surroundings
-    let (start_d, _) = infer_start_direction(&map, start_x, start_y).ok_or(Error::StartInferFailed)?;
-
-    // Traverse the wall and count up its length
     Ok((compute_wall_length(&map, start_x, start_y, start_d)? / 2).to_string())
 }
 
-pub fn compute_wall_length(map: &TextMap, start_x: usize, start_y: usize, start_d: Direction) -> Result<usize, Error> {
+pub fn compute_wall_length(
+    map: &TextMap,
+    start_x: usize,
+    start_y: usize,
+    start_d: Direction,
+) -> Result<usize, Error> {
     let mut traveled = 0;
 
     let mut next_direction = *start_d.cardinals().first().ok_or(Error::InvalidWall)?;
@@ -25,7 +32,9 @@ pub fn compute_wall_length(map: &TextMap, start_x: usize, start_y: usize, start_
 
     loop {
         let c: &u8;
-        (x, y, c) = map.offset_direction(x, y, next_direction).ok_or(Error::InvalidWall)?;
+        (x, y, c) = map
+            .offset_direction(x, y, next_direction)
+            .ok_or(Error::InvalidWall)?;
 
         traveled += 1;
 

@@ -27,13 +27,16 @@ pub fn byte_for_direction(d: Direction) -> Option<u8> {
 }
 
 pub fn find_start<T: Grid2D<Item = u8>>(map: &T) -> Option<(usize, usize)> {
-    map
-        .iter()
+    map.iter()
         .find(|(_, _, &c)| c == b'S')
         .map(|(x, y, _)| (x, y))
 }
 
-pub fn infer_start_direction<T: Grid2D<Item = u8>>(map: &T, start_x: usize, start_y: usize) -> Option<(Direction, u8)> {
+pub fn infer_start_direction<T: Grid2D<Item = u8>>(
+    map: &T,
+    start_x: usize,
+    start_y: usize,
+) -> Option<(Direction, u8)> {
     let mut start_d = Direction::Nowhere;
 
     for (_, _, d, &c) in map.neighbors_4(start_x, start_y) {
