@@ -28,7 +28,9 @@ impl Card {
     }
 
     pub fn compute_wins(&self) -> usize {
-        self.winning_numbers.intersection(&self.card_numbers).count()
+        self.winning_numbers
+            .intersection(&self.card_numbers)
+            .count()
     }
 }
 
