@@ -16,9 +16,12 @@ pub fn parse_camel_map(map: &str) -> Result<(Vec<char>, HashMap<&str, Node>), Er
 
     for line in nodes_text.lines() {
         let (key, values) = line.split_once(" = ").ok_or(Error::InvalidMapFormat)?;
-        let (left, right) = values.trim_matches(&['(', ')']).split_once(", ").ok_or(Error::InvalidMapFormat)?;
+        let (left, right) = values
+            .trim_matches(&['(', ')'])
+            .split_once(", ")
+            .ok_or(Error::InvalidMapFormat)?;
 
-        nodes.insert(key, Node {left, right});
+        nodes.insert(key, Node { left, right });
     }
 
     Ok((steps, nodes))
