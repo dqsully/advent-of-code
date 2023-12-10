@@ -12,6 +12,7 @@ pub struct Remainders {
     pub after: Option<Mapping>,
 }
 
+#[derive(Clone, Copy)]
 pub enum MappingSide {
     Source,
     Dest,
@@ -38,7 +39,9 @@ impl Mapping {
         let intersected =
             max(self.source.start, upstream.dest.start)..min(self.source.end, upstream.dest.end);
 
-        if !intersected.is_empty() {
+        if intersected.is_empty() {
+            None
+        } else {
             let intersection = Mapping {
                 source: (intersected.start - upstream.dest.start + upstream.source.start)
                     ..(intersected.end - upstream.dest.start + upstream.source.start),
@@ -51,8 +54,6 @@ impl Mapping {
                 self.subtract(MappingSide::Source, &intersected),
                 upstream.subtract(MappingSide::Dest, &intersected),
             ))
-        } else {
-            None
         }
     }
 
@@ -101,11 +102,11 @@ impl Mappings {
     }
 
     pub fn sort_by_source(&mut self) {
-        self.0.sort_unstable_by_key(|m| m.source.start)
+        self.0.sort_unstable_by_key(|m| m.source.start);
     }
 
     pub fn sort_by_dest(&mut self) {
-        self.0.sort_unstable_by_key(|m| m.dest.start)
+        self.0.sort_unstable_by_key(|m| m.dest.start);
     }
 
     pub fn merge(&mut self, downstream: &mut Mappings) -> Mappings {
@@ -189,7 +190,7 @@ pub struct Almanac {
 
 impl Almanac {
     pub fn parse(input: &str) -> Almanac {
-        let mut almanac: Almanac = Default::default();
+        let mut almanac: Almanac = Almanac::default();
 
         for section in input.split("\n\n") {
             let (header, contents) = section.split_once(':').unwrap();
