@@ -1,4 +1,4 @@
-use std::cmp::{max, min, Ordering};
+use std::{cmp::{max, min, Ordering}, ops::Range};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 #[repr(u8)]
@@ -21,6 +21,43 @@ pub enum Direction {
     UpDownLeftRight = 0xf,
 }
 
+const CARDINALS: [Direction; 12] = [
+    Direction::Up, // 0
+    Direction::Down, // 1
+    Direction::Left, // 2
+    Direction::Right, // 3
+
+    Direction::Up, // 4
+    Direction::Down, // 5
+    Direction::Right, // 6
+
+    Direction::Up, // 7
+    Direction::Left, // 8
+    Direction::Right, // 9
+
+    Direction::Up, // 10
+    Direction::Right, // 11
+];
+
+const CARDINAL_OFFSETS: [Range<usize>; 16] = [
+    0..0,   // Nowhere
+    0..1,   // Up
+    8..9,   // Left
+    7..9,   // UpLeft
+    1..2,   // Down
+    0..2,   // UpDown
+    1..3,   // DownLeft
+    0..3,   // UpDownLeft
+    11..12, // Right
+    10..12, // UpRight
+    8..10,  // LeftRight
+    7..10,  // UpLeftRight
+    5..7,   // DownRight
+    4..7,   // UpDownRight
+    1..4,   // DownLeftRight
+    0..4,   // UpDownLeftRight
+];
+
 impl Direction {
     pub fn reverse(mut self) -> Direction {
         match self & Direction::LeftRight {
@@ -34,6 +71,14 @@ impl Direction {
         }
 
         self
+    }
+
+    pub fn num_cardinals(self) -> u32 {
+        (self as u8).count_ones()
+    }
+
+    pub fn cardinals(self) -> &'static [Direction] {
+        &CARDINALS[CARDINAL_OFFSETS[self as u8 as usize].clone()]
     }
 }
 
@@ -195,6 +240,52 @@ pub trait Grid2D {
     }
 }
 
+impl<T> Grid2D for &T
+where
+    T: Grid2D
+{
+    type Item = T::Item;
+
+    fn width(&self) -> usize {
+        (**self).width()
+    }
+
+    fn height(&self) -> usize {
+        (**self).height()
+    }
+
+    fn get(&self, x: usize, y: usize) -> Option<&Self::Item> {
+        (**self).get(x, y)
+    }
+
+    fn iter(&self) -> impl Iterator<Item = (usize, usize, &Self::Item)> {
+        (**self).iter()
+    }
+}
+
+impl<T> Grid2D for &mut T
+where
+    T: Grid2D
+{
+    type Item = T::Item;
+
+    fn width(&self) -> usize {
+        (**self).width()
+    }
+
+    fn height(&self) -> usize {
+        (**self).height()
+    }
+
+    fn get(&self, x: usize, y: usize) -> Option<&Self::Item> {
+        (**self).get(x, y)
+    }
+
+    fn iter(&self) -> impl Iterator<Item = (usize, usize, &Self::Item)> {
+        (**self).iter()
+    }
+}
+
 pub trait Grid2DMut: Grid2D {
     fn get_mut(&mut self, x: usize, y: usize) -> Option<&mut Self::Item>;
     fn iter_mut(&mut self) -> impl Iterator<Item = (usize, usize, &mut Self::Item)>;
@@ -203,6 +294,19 @@ pub trait Grid2DMut: Grid2D {
         let space = self.get_mut(x, y)?;
 
         Some(std::mem::replace(space, item))
+    }
+}
+
+impl<T> Grid2DMut for &mut T
+where
+    T: Grid2DMut
+{
+    fn get_mut(&mut self, x: usize, y: usize) -> Option<&mut Self::Item> {
+        (**self).get_mut(x, y)
+    }
+
+    fn iter_mut(&mut self) -> impl Iterator<Item = (usize, usize, &mut Self::Item)> {
+        (**self).iter_mut()
     }
 }
 

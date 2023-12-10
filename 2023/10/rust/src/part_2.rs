@@ -1,94 +1,68 @@
-use aoc_helpers::{text_map::TextMapMut, neighbors::{Grid2D, Direction, Grid2DMut}, map::Map2D};
+use aoc_helpers::{neighbors::{Grid2D, Direction, Grid2DMut}, map::Map2D};
 
-use crate::error::Error;
+use crate::{error::Error, shared::{direction_for_byte, find_start, infer_start_direction}};
 
 pub fn run(input: &str) -> Result<String, Error> {
-    let mut map = TextMapMut::parse(input)?;
+    // Turn the input into a mutable 2d map of bytes
+    let mut map: Map2D<u8> = input.parse()?;
 
-    let (start_x, start_y, _) = map.iter()
-        .find(|(_, _, c)| **c == b'S')
-        .unwrap();
+    // Find the 'S' starting point
+    let (start_x, start_y) = find_start(&map).ok_or(Error::StartNotFound)?;
 
-    let mut start_d = Direction::Nowhere;
-
-    for (_, _, d, c) in map.neighbors_4(start_x, start_y) {
-        start_d |= match d {
-            Direction::Up if [b'7', b'|', b'F'].contains(c) => d,
-            Direction::Right if [b'J', b'-', b'7'].contains(c) => d,
-            Direction::Down if [b'J', b'|', b'L'].contains(c) => d,
-            Direction::Left if [b'L', b'-', b'F'].contains(c) => d,
-            _ => Direction::Nowhere
-        };
-    }
-
-    let start_c = match start_d {
-        Direction::UpDown => b'|',
-        Direction::LeftRight => b'-',
-        Direction::UpRight => b'L',
-        Direction::UpLeft => b'J',
-        Direction::DownLeft => b'7',
-        Direction::DownRight => b'F',
-        _ => unreachable!(),
-    };
+    // Infer what would be at the start instead of 'S' based on its surroundings
+    let (start_d, start_c) = infer_start_direction(&map, start_x, start_y).ok_or(Error::StartInferFailed)?;
     map.set(start_x, start_y, start_c);
 
-    let mut wall_map = Map2D::new(map.width(), map.height(), false);
-    wall_map.set(start_x, start_y, true);
+    // Compute wall
+    let wall_map = compute_wall(&map, start_x, start_y, start_d)?;
 
-    let mut next_direction = if start_d & Direction::Left != Direction::Nowhere {
-        Direction::Left
-    } else if start_d & Direction::Up != Direction::Nowhere {
-        Direction::Up
-    } else {
-        Direction::Right
-    };
+    // Compute inside tiles using up/down parity
+    Ok(count_inside(&wall_map)?.to_string())
+}
 
+fn compute_wall(map: &Map2D<u8>, start_x: usize, start_y: usize, start_d: Direction) -> Result<Map2D<Direction>, Error> {
+    let mut wall_map = Map2D::new_parallel(&map, Direction::Nowhere);
+
+    let mut next_direction = *start_d.cardinals().first().ok_or(Error::InvalidWall)?;
     let mut x = start_x;
     let mut y = start_y;
 
     loop {
         let c: &u8;
-        (x, y, c) = map.offset_direction(x, y, next_direction).unwrap();
-        wall_map.set(x, y, true);
+        (x, y, c) = map.offset_direction(x, y, next_direction).ok_or(Error::InvalidWall)?;
+        let d = direction_for_byte(*c).ok_or(Error::InvalidWall)?;
+
+        wall_map.set(x, y, d);
 
         if x == start_x && y == start_y {
             break;
         }
 
-        let d = direction_for_byte(*c);
-
         next_direction = d ^ next_direction.reverse();
+
+        if next_direction.num_cardinals() != 1 {
+            return Err(Error::InvalidWall);
+        }
     }
 
+    Ok(wall_map)
+}
 
+fn count_inside(wall_map: &Map2D<Direction>) -> Result<usize, Error> {
     let mut inside_tiles = 0;
     let mut is_inside = Direction::Nowhere;
-    let mut inside_map = Map2D::new(map.width(), map.height(), Direction::Nowhere);
+    let mut inside_map = Map2D::new_parallel(wall_map, Direction::Nowhere);
 
-    for (x, y, &is_wall) in wall_map.iter() {
-        if is_wall {
-            let byte = *map.get(x, y).unwrap();
-
-            is_inside ^= direction_for_byte(byte) & Direction::UpDown;
+    for (x, y, &wall_d) in wall_map.iter() {
+        if wall_d != Direction::Nowhere  {
+            is_inside ^= wall_d & Direction::UpDown;
         } else if is_inside == Direction::UpDown {
             inside_tiles += 1;
             inside_map.set(x, y, is_inside);
         }
     }
 
-    Ok(inside_tiles.to_string())
-}
-
-fn direction_for_byte(byte: u8) -> Direction {
-    match byte {
-        b'|' => Direction::UpDown,
-        b'-' => Direction::LeftRight,
-        b'L' => Direction::UpRight,
-        b'J' => Direction::UpLeft,
-        b'7' => Direction::DownLeft,
-        b'F' => Direction::DownRight,
-        _ => Direction::Nowhere,
-    }
+    Ok(inside_tiles)
 }
 
 #[cfg(test)]

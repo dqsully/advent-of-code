@@ -8,6 +8,12 @@ pub enum Error {
         aoc_helpers::Error,
     ),
 
-    #[error("unimplemented")]
-    Unimplemented,
+    #[error("could not find map start")]
+    StartNotFound,
+
+    #[error("could not infer starting directions")]
+    StartInferFailed,
+
+    #[error("wall doesn't loop properly")]
+    InvalidWall,
 }

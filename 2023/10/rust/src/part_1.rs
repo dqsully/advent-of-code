@@ -1,59 +1,48 @@
 use aoc_helpers::{text_map::TextMap, neighbors::{Grid2D, Direction}};
 
-use crate::error::Error;
+use crate::{error::Error, shared::{infer_start_direction, direction_for_byte, find_start}};
 
 pub fn run(input: &str) -> Result<String, Error> {
+    // Parse the input as a 2d map of lines
     let map = TextMap::parse(input)?;
 
-    let (start_x, start_y, _) = map.iter()
-        .find(|(_, _, c)| **c == b'S')
-        .unwrap();
+    // Find the 'S' starting point
+    let (start_x, start_y) = find_start(&map).ok_or(Error::StartNotFound)?;
 
-    let mut start_d = Direction::Nowhere;
+    // Infer what would be the start instead of 'S' based on its surroundings
+    let (start_d, _) = infer_start_direction(&map, start_x, start_y).ok_or(Error::StartInferFailed)?;
 
-    for (_, _, d, c) in map.neighbors_4(start_x, start_y) {
-        start_d |= match d {
-            Direction::Up if [b'7', b'|', b'F'].contains(c) => d,
-            Direction::Right if [b'J', b'-', b'7'].contains(c) => d,
-            Direction::Down if [b'J', b'|', b'L'].contains(c) => d,
-            Direction::Left if [b'L', b'-', b'F'].contains(c) => d,
-            _ => Direction::Nowhere
-        };
-    }
+    // Traverse the wall and count up its length
+    Ok((compute_wall_length(&map, start_x, start_y, start_d)? / 2).to_string())
+}
 
-    let mut next_direction = if start_d & Direction::Left != Direction::Nowhere {
-        Direction::Left
-    } else if start_d & Direction::Up != Direction::Nowhere {
-        Direction::Up
-    } else {
-        Direction::Right
-    };
-
+pub fn compute_wall_length(map: &TextMap, start_x: usize, start_y: usize, start_d: Direction) -> Result<usize, Error> {
     let mut traveled = 0;
+
+    let mut next_direction = *start_d.cardinals().first().ok_or(Error::InvalidWall)?;
     let mut x = start_x;
     let mut y = start_y;
 
     loop {
         let c: &u8;
-        (x, y, c) = map.offset_direction(x, y, next_direction).unwrap();
+        (x, y, c) = map.offset_direction(x, y, next_direction).ok_or(Error::InvalidWall)?;
+
         traveled += 1;
 
-        let d = match *c {
-            b'|' => Direction::UpDown,
-            b'-' => Direction::LeftRight,
-            b'L' => Direction::UpRight,
-            b'J' => Direction::UpLeft,
-            b'7' => Direction::DownLeft,
-            b'F' => Direction::DownRight,
-            b'.' => panic!("pipe ran into ground"),
-            b'S' => break,
-            _ => panic!("unexpected char {:?}", *c as char),
-        };
+        if x == start_x && y == start_y {
+            break;
+        }
+
+        let d = direction_for_byte(*c).ok_or(Error::InvalidWall)?;
 
         next_direction = d ^ next_direction.reverse();
+
+        if next_direction.num_cardinals() != 1 {
+            return Err(Error::InvalidWall);
+        }
     }
 
-    Ok((traveled / 2).to_string())
+    Ok(traveled)
 }
 
 #[cfg(test)]

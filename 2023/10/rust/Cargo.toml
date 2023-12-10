@@ -1,5 +1,5 @@
 [package]
-name = "aoc_YYYY_day_DD"
+name = "aoc_2023_day_10"
 version = "0.1.0"
 edition = "2021"
 
