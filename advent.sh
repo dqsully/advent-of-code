@@ -31,7 +31,7 @@ ensure_date() {
     return 0
   fi
 
-  if [[ "$CURRENT_DAY" -lt "$DAY" ]]; then
+  if [[ "${CURRENT_DAY#0}" -lt "${DAY#0}" ]]; then
     if [[ ! -z "$MESSAGE" ]]; then
       echo "$MESSAGE: it's not Dec $DAY in New York yet"
     fi
@@ -57,7 +57,7 @@ EOF
     exit 1
   fi
 
-  if ! curl -f "https://adventofcode.com/$YEAR/day/$((DAY))/input" -H "Cookie: session=$(cat "session.txt")" -o "$YEAR/$DAY/input.txt"; then
+  if ! curl -f "https://adventofcode.com/$YEAR/day/${DAY#0}/input" -H "Cookie: session=$(cat "session.txt")" -o "$YEAR/$DAY/input.txt"; then
     cat <<EOF
 Failed to download problem input for year $YEAR day $DAY, see error above. Most
 likely the problem isn't open yet or your session token expired. Please
@@ -260,7 +260,7 @@ with_day() {
   if [[ "$DAY" == "all" ]]; then
     for_each_day "$YEAR" "$COMMAND" "$@"
   else
-    "$COMMAND" "$YEAR" "$(printf "%02d" "$DAY")" "$@"
+    "$COMMAND" "$YEAR" "$(printf "%02d" "${DAY#0}")" "$@"
   fi
 }
 
