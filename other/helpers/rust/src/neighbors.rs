@@ -169,6 +169,56 @@ pub fn neighbors_4(
     neighbors_8(x, y, width, height).filter(move |&(x_o, y_o, _)| (x == x_o) ^ (y == y_o))
 }
 
+#[allow(clippy::module_name_repetitions)]
+pub fn neighbors_8_rings(
+    x: usize,
+    y: usize,
+    width: usize,
+    height: usize,
+) -> impl Iterator<Item = (usize, usize)> {
+    (1..).flat_map(move |ring_size| {
+        let mut iters: Vec<Box<dyn Iterator<Item = (usize, usize)>>> = Vec::new();
+
+        if y >= ring_size {
+            iters.push(
+                Box::new(
+                    ((max(ring_size, x) - x)..(min(x, max(width, ring_size) - ring_size) + ring_size))
+                        .map(move |o_x| (o_x, y - ring_size))
+                ),
+            );
+        }
+
+        if x >= ring_size {
+            iters.push(
+                Box::new(
+                    ((max(ring_size, y) - y)..(min(y, max(height, ring_size) - ring_size) + ring_size))
+                        .map(move |o_y| (x - ring_size, o_y))
+                ),
+            );
+        }
+
+        if height > ring_size && y < height - ring_size {
+            iters.push(
+                Box::new(
+                    ((max(ring_size, x) - x)..(min(x, max(width, ring_size) - ring_size) + ring_size))
+                        .map(move |o_x| (o_x, y + ring_size))
+                ),
+            )
+        }
+
+        if width > ring_size && x < width - ring_size {
+            iters.push(
+                Box::new(
+                    ((max(ring_size, y) - y)..(min(y, max(height, ring_size) - ring_size) + ring_size))
+                        .map(move |o_y| (x + ring_size, o_y))
+                ),
+            )
+        }
+
+        iters.into_iter().flatten()
+    })
+}
+
 #[must_use]
 pub fn offset_direction(
     mut x: usize,
@@ -239,6 +289,14 @@ pub trait Grid2D {
     ) -> impl Iterator<Item = (usize, usize, Direction, &Self::Item)> {
         neighbors_4(x, y, self.width(), self.height())
             .filter_map(|(x, y, d)| Some((x, y, d, self.get(x, y)?)))
+    }
+    fn neighbors_8_rings(
+        &self,
+        x: usize,
+        y: usize,
+    ) -> impl Iterator<Item = (usize, usize, &Self::Item)> {
+        neighbors_8_rings(x, y, self.width(), self.height())
+            .filter_map(|(x, y)| Some((x, y, self.get(x, y)?)))
     }
 
     fn offset_direction(
