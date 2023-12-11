@@ -326,6 +326,108 @@ where
 mod tests {
     use super::*;
 
+    macro_rules! cardinals_test {
+        ($suite:ident, $($name:ident: $input:expr => $expected:expr,)*) => {
+            mod $suite {
+                use super::*;
+
+                $(
+                    #[test]
+                    fn $name() {
+                        assert_eq!($input.cardinals(), $expected);
+                    }
+                )*
+            }
+        }
+    }
+
+    cardinals_test!(cardinals_tests,
+        nowhere: Direction::Nowhere => &[],
+        up: Direction::Up => &[Direction::Up],
+        left: Direction::Left => &[Direction::Left],
+        up_left: Direction::UpLeft => &[Direction::Up, Direction::Left],
+        down: Direction::Down => &[Direction::Down],
+        up_down: Direction::UpDown => &[Direction::Up, Direction::Down],
+        down_left: Direction::DownLeft => &[Direction::Down, Direction::Left],
+        up_down_left: Direction::UpDownLeft => &[Direction::Up, Direction::Down, Direction::Left],
+        right: Direction::Right => &[Direction::Right],
+        up_right: Direction::UpRight => &[Direction::Up, Direction::Right],
+        left_right: Direction::LeftRight => &[Direction::Left, Direction::Right],
+        up_left_right: Direction::UpLeftRight => &[Direction::Up, Direction::Left, Direction::Right],
+        down_right: Direction::DownRight => &[Direction::Down, Direction::Right],
+        up_down_right: Direction::UpDownRight => &[Direction::Up, Direction::Down, Direction::Right],
+        down_left_right: Direction::DownLeftRight => &[Direction::Down, Direction::Left, Direction::Right],
+        up_down_left_right: Direction::UpDownLeftRight => &[Direction::Up, Direction::Down, Direction::Left, Direction::Right],
+    );
+
+    macro_rules! num_cardinals_test {
+        ($suite:ident, $($name:ident: $input:expr => $expected:expr,)*) => {
+            mod $suite {
+                use super::*;
+
+                $(
+                    #[test]
+                    fn $name() {
+                        assert_eq!($input.num_cardinals(), $expected);
+                    }
+                )*
+            }
+        }
+    }
+
+    num_cardinals_test!(num_cardinals_tests,
+        nowhere: Direction::Nowhere => 0,
+        up: Direction::Up => 1,
+        left: Direction::Left => 1,
+        up_left: Direction::UpLeft => 2,
+        down: Direction::Down => 1,
+        up_down: Direction::UpDown => 2,
+        down_left: Direction::DownLeft => 2,
+        up_down_left: Direction::UpDownLeft => 3,
+        right: Direction::Right => 1,
+        up_right: Direction::UpRight => 2,
+        left_right: Direction::LeftRight => 2,
+        up_left_right: Direction::UpLeftRight => 3,
+        down_right: Direction::DownRight => 2,
+        up_down_right: Direction::UpDownRight => 3,
+        down_left_right: Direction::DownLeftRight => 3,
+        up_down_left_right: Direction::UpDownLeftRight => 4,
+    );
+
+    macro_rules! direction_reverse_test {
+        ($suite:ident, $($name:ident: $input:expr => $expected:expr,)*) => {
+            mod $suite {
+                use super::*;
+
+                $(
+                    #[test]
+                    fn $name() {
+                        assert_eq!($input.reverse(), $expected);
+                    }
+                )*
+            }
+        }
+    }
+
+    direction_reverse_test!(direction_reverse_tests,
+        nowhere: Direction::Nowhere => Direction::Nowhere,
+        up: Direction::Up => Direction::Down,
+        left: Direction::Left => Direction::Right,
+        up_left: Direction::UpLeft => Direction::DownRight,
+        down: Direction::Down => Direction::Up,
+        up_down: Direction::UpDown => Direction::UpDown,
+        down_left: Direction::DownLeft => Direction::UpRight,
+        up_down_left: Direction::UpDownLeft => Direction::UpDownRight,
+        right: Direction::Right => Direction::Left,
+        up_right: Direction::UpRight => Direction::DownLeft,
+        left_right: Direction::LeftRight => Direction::LeftRight,
+        up_left_right: Direction::UpLeftRight => Direction::DownLeftRight,
+        down_right: Direction::DownRight => Direction::UpLeft,
+        up_down_right: Direction::UpDownRight => Direction::UpDownLeft,
+        down_left_right: Direction::DownLeftRight => Direction::UpLeftRight,
+        up_down_left_right: Direction::UpDownLeftRight => Direction::UpDownLeftRight,
+    );
+
     macro_rules! neighbors_8_test {
         ($suite:ident, $($name:ident: $input:expr => $expected:expr,)*) => {
             mod $suite {
@@ -418,5 +520,132 @@ mod tests {
             (0, 0, Direction::Left),
             (2, 0, Direction::Right),
         ],
+    );
+
+    macro_rules! neighbors_4_test {
+        ($suite:ident, $($name:ident: $input:expr => $expected:expr,)*) => {
+            mod $suite {
+                use super::*;
+
+                $(
+                    #[test]
+                    fn $name() {
+                        let mut outputs = Vec::new();
+                        let input = $input;
+
+                        for output in neighbors_4(input.0, input.1, input.2, input.3) {
+                            outputs.push(output);
+                        }
+
+                        assert_eq!(outputs, $expected);
+                    }
+                )*
+            }
+        }
+    }
+
+    neighbors_4_test!(neighbors_4_tests,
+        all_4: (1, 1, 3, 3) => vec![
+            (1, 0, Direction::Up),
+            (0, 1, Direction::Left),
+            (2, 1, Direction::Right),
+            (1, 2, Direction::Down),
+        ],
+        top_left: (0, 0, 3, 3) => vec![
+            (1, 0, Direction::Right),
+            (0, 1, Direction::Down),
+        ],
+        top: (1, 0, 3, 3) => vec![
+            (0, 0, Direction::Left),
+            (2, 0, Direction::Right),
+            (1, 1, Direction::Down),
+        ],
+        top_right: (2, 0, 3, 3) => vec![
+            (1, 0, Direction::Left),
+            (2, 1, Direction::Down),
+        ],
+        left: (0, 1, 3, 3) => vec![
+            (0, 0, Direction::Up),
+            (1, 1, Direction::Right),
+            (0, 2, Direction::Down),
+        ],
+        right: (2, 1, 3, 3) => vec![
+            (2, 0, Direction::Up),
+            (1, 1, Direction::Left),
+            (2, 2, Direction::Down),
+        ],
+        bottom_left: (0, 2, 3, 3) => vec![
+            (0, 1, Direction::Up),
+            (1, 2, Direction::Right),
+        ],
+        bottom: (1, 2, 3, 3) => vec![
+            (1, 1, Direction::Up),
+            (0, 2, Direction::Left),
+            (2, 2, Direction::Right),
+        ],
+        bottom_right: (2, 2, 3, 3) => vec![
+            (2, 1, Direction::Up),
+            (1, 2, Direction::Left),
+        ],
+
+        one_by_one: (0, 0, 1, 1) => vec![],
+        zero_by_zero: (0, 0, 0, 0) => vec![],
+        one_by_three: (0, 1, 1, 3) => vec![
+            (0, 0, Direction::Up),
+            (0, 2, Direction::Down),
+        ],
+        three_by_one: (1, 0, 3, 1) => vec![
+            (0, 0, Direction::Left),
+            (2, 0, Direction::Right),
+        ],
+    );
+
+    macro_rules! offset_direction_test {
+        ($suite:ident, $($name:ident: $input:expr => $expected:expr,)*) => {
+            mod $suite {
+                use super::*;
+
+                $(
+                    #[test]
+                    fn $name() {
+                        let input = $input;
+
+                        assert_eq!(offset_direction(input.0, input.1, input.2, input.3, input.4), $expected);
+                    }
+                )*
+            }
+        }
+    }
+
+    offset_direction_test!(offset_direction_tests,
+        up_left: (1, 1, 3, 3, Direction::UpLeft) => Some((0, 0)),
+        up: (1, 1, 3, 3, Direction::Up) => Some((1, 0)),
+        up_right: (1, 1, 3, 3, Direction::UpRight) => Some((2, 0)),
+        left: (1, 1, 3, 3, Direction::Left) => Some((0, 1)),
+        right: (1, 1, 3, 3, Direction::Right) => Some((2, 1)),
+        down_left: (1, 1, 3, 3, Direction::DownLeft) => Some((0, 2)),
+        down: (1, 1, 3, 3, Direction::Down) => Some((1, 2)),
+        down_right: (1, 1, 3, 3, Direction::DownRight) => Some((2, 2)),
+
+        up_left_constrained_left: (0, 1, 3, 3, Direction::UpLeft) => None,
+        up_left_constrained_up: (1, 0, 3, 3, Direction::UpLeft) => None,
+        up_left_constrained_up_left: (0, 0, 3, 3, Direction::UpLeft) => None,
+        up_constrained: (1, 0, 3, 3, Direction::Up) => None,
+        up_right_constrained_right: (2, 1, 3, 3, Direction::UpRight) => None,
+        up_right_constrained_up: (1, 0, 3, 3, Direction::UpRight) => None,
+        up_right_constrained_up_right: (2, 0, 3, 3, Direction::UpRight) => None,
+        left_constrained: (0, 1, 3, 3, Direction::Left) => None,
+        right_constrained: (2, 1, 3, 3, Direction::Right) => None,
+        down_left_constrained_left: (0, 1, 3, 3, Direction::DownLeft) => None,
+        down_left_constrained_down: (1, 2, 3, 3, Direction::DownLeft) => None,
+        down_left_constrained_down_left: (0, 2, 3, 3, Direction::DownLeft) => None,
+        down_constrained: (1, 2, 3, 3, Direction::Down) => None,
+        down_right_constrained_right: (2, 1, 3, 3, Direction::DownRight) => None,
+        down_right_constrained_down: (1, 2, 3, 3, Direction::DownRight) => None,
+        down_right_constrained_down_right: (2, 2, 3, 3, Direction::DownRight) => None,
+
+        identity_left_right: (1, 1, 3, 3, Direction::LeftRight) => Some((1, 1)),
+        identity_up_down: (1, 1, 3, 3, Direction::UpDown) => Some((1, 1)),
+        identity_up_down_left_right: (1, 1, 3, 3, Direction::UpDownLeftRight) => Some((1, 1)),
     );
 }
