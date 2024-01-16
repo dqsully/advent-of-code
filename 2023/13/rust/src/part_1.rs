@@ -1,48 +1,23 @@
-use std::hash::Hasher;
+use aoc_helpers::text_map::TextMap;
 
-use aoc_helpers::{neighbors::Grid2D, text_map::TextMap};
-
-use crate::error::Error;
+use crate::{error::Error, shared::{hash_columns, hash_rows}};
 
 pub fn run(input: &str) -> Result<String, Error> {
-    let boards = input
-        .trim()
-        .split("\n\n")
-        .map(TextMap::parse);
+    let boards = input.trim().split("\n\n").map(TextMap::parse);
 
     let mut sum = 0;
 
     for board in boards {
         let board = board?;
 
-        let columns = (0..board.width())
-            .map(|x| {
-                let mut hasher = std::collections::hash_map::DefaultHasher::new();
+        let columns = hash_columns(&board);
+        let rows = hash_rows(&board);
 
-                for y in 0..board.height() {
-                    hasher.write_u8(*board.get(x, y).unwrap());
-                }
-
-                hasher.finish()
-            })
-            .collect::<Vec<u64>>();
-        let rows = (0..board.height())
-            .map(|y| {
-                let mut hasher = std::collections::hash_map::DefaultHasher::new();
-
-                for x in 0..board.width() {
-                    hasher.write_u8(*board.get(x, y).unwrap());
-                }
-
-                hasher.finish()
-            })
-            .collect::<Vec<u64>>();
-
-        if let Some(vertical_reflection) = find_reflection(&columns) {
-            sum += vertical_reflection + 1;
+        if let Some(i) = find_reflection(&columns) {
+            sum += i + 1;
         }
-        if let Some(horizontal_reflection) = find_reflection(&rows) {
-            sum += (horizontal_reflection + 1) * 100;
+        if let Some(i) = find_reflection(&rows) {
+            sum += (i + 1) * 100;
         }
     }
 

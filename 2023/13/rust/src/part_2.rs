@@ -1,79 +1,30 @@
-use std::hash::Hasher;
-
 use aoc_helpers::{neighbors::Grid2D, text_map::TextMap};
 
-use crate::error::Error;
+use crate::{
+    error::Error,
+    shared::{hash_columns, hash_rows},
+};
 
 pub fn run(input: &str) -> Result<String, Error> {
-    let boards = input
-        .trim()
-        .split("\n\n")
-        .map(TextMap::parse);
+    let boards = input.trim().split("\n\n").map(TextMap::parse);
 
     let mut sum = 0;
 
     for board in boards {
         let board = board?;
 
-        let columns = (0..board.width())
-            .map(|x| {
-                let mut hasher = std::collections::hash_map::DefaultHasher::new();
+        let columns = hash_columns(&board);
+        let rows = hash_rows(&board);
 
-                for y in 0..board.height() {
-                    hasher.write_u8(*board.get(x, y).unwrap());
-                }
-
-                hasher.finish()
-            })
-            .collect::<Vec<u64>>();
-        let rows = (0..board.height())
-            .map(|y| {
-                let mut hasher = std::collections::hash_map::DefaultHasher::new();
-
-                for x in 0..board.width() {
-                    hasher.write_u8(*board.get(x, y).unwrap());
-                }
-
-                hasher.finish()
-            })
-            .collect::<Vec<u64>>();
-
-        let possible_vertical_reflections = find_possible_smudged_reflections(&columns);
-        let possible_horizontal_reflections = find_possible_smudged_reflections(&rows);
-
-        for &(i, l, r) in &possible_vertical_reflections {
-            let mut errors = 0;
-
-            for y in 0..board.height() {
-                if board.get(l, y) != board.get(r, y) {
-                    errors += 1;
-
-                    if errors > 1 {
-                        break;
-                    }
-                }
-            }
-
-            if errors == 1 {
+        for (i, l, r) in find_possible_smudged_reflections(&columns) {
+            if validate_smudged_column(&board, l, r) {
                 sum += i + 1;
                 break;
             }
         }
 
-        for &(i, t, b) in &possible_horizontal_reflections {
-            let mut errors = 0;
-
-            for x in 0..board.width() {
-                if board.get(x, t) != board.get(x, b) {
-                    errors += 1;
-
-                    if errors > 1 {
-                        break;
-                    }
-                }
-            }
-
-            if errors == 1 {
+        for (i, t, b) in find_possible_smudged_reflections(&rows) {
+            if validate_smudged_row(&board, t, b) {
                 sum += (i + 1) * 100;
                 break;
             }
@@ -83,16 +34,16 @@ pub fn run(input: &str) -> Result<String, Error> {
     Ok(sum.to_string())
 }
 
-fn find_possible_smudged_reflections(input: &[u64]) -> Vec<(usize, usize, usize)> {
-    let mut possible_reflections = Vec::new();
-
-    for (i, v) in input.windows(2).enumerate() {
+fn find_possible_smudged_reflections(
+    input: &[u64],
+) -> impl Iterator<Item = (usize, usize, usize)> + '_ {
+    input.windows(2).enumerate().filter_map(|(i, v)| {
         let mut l = i;
         let mut r = i + 1;
-        let mut hash_error = None;
+        let mut smudged_line = None;
 
         if v[0] != v[1] {
-            hash_error = Some((l, r));
+            smudged_line = Some((i, l, r));
         }
 
         while l > 0 && r < input.len() - 1 {
@@ -100,21 +51,51 @@ fn find_possible_smudged_reflections(input: &[u64]) -> Vec<(usize, usize, usize)
             r += 1;
 
             if input[l] != input[r] {
-                if hash_error.is_some() {
-                    hash_error = None;
+                if smudged_line.is_none() {
+                    smudged_line = Some((i, l, r));
+                } else {
+                    // There can only be one smudged line, meaning this isn't a
+                    // proper smudged reflection
+                    smudged_line = None;
                     break;
                 }
-
-                hash_error = Some((l, r));
             }
         }
 
-        if let Some((l, r)) = hash_error {
-            possible_reflections.push((i, l, r));
+        smudged_line
+    })
+}
+
+fn validate_smudged_column(board: &TextMap, l: usize, r: usize) -> bool {
+    let mut found_smudge = false;
+
+    for y in 0..board.height() {
+        if board.get(l, y) != board.get(r, y) {
+            if found_smudge {
+                return false;
+            }
+
+            found_smudge = true;
         }
     }
 
-    possible_reflections
+    found_smudge
+}
+
+fn validate_smudged_row(board: &TextMap, t: usize, b: usize) -> bool {
+    let mut found_smudge = false;
+
+    for x in 0..board.width() {
+        if board.get(x, t) != board.get(x, b) {
+            if found_smudge {
+                return false;
+            }
+
+            found_smudge = true;
+        }
+    }
+
+    found_smudge
 }
 
 #[cfg(test)]
