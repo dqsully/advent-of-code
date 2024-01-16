@@ -8,7 +8,7 @@ This an easy solution for me, both before and after cleaning it up. All I did wa
 
 I didn't really think to use regex here because it's not as easy in Rust as it is in other languages, and I was racing against the rest of the world for my initial implementation.
 
-(Also, when I came back to clean this code up, it was the first time I had ever done 'table-driven tests' in Rust, and it's awesome! The downside is that Rust's `macro_rules!` system is confusing, especially to beginners, but the upside is that all of the Rust tooling (including rust-analyzer) can track the text inputs into how they're used, understanding that each line in the macro invocation is its own test! In comparison, Go and JS/TS 'discover' tests at 'runtime', so table-driven tests have less IDE integration since they're not statically defined.)
+(Also, when I came back to clean this code up, it was the first time I had ever done 'table-driven tests' in Rust, and it's awesome! The downside is that Rust's `macro_rules!` system is confusing, especially to beginners, but the upside is that all of the Rust tooling (including rust-analyzer) can track the text inputs into how they're used, understanding that each line in the macro invocation is its own test! In comparison, Go and JS/TS 'discover' tests at runtime, so table-driven tests have less IDE integration since they're not statically defined.)
 
 ### Complexity
 
