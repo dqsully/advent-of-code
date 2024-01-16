@@ -12,7 +12,7 @@ ensure_date() {
   shift 2
 
   if [[ "$CURRENT_YEAR" -lt "$YEAR" ]]; then
-    if [[ ! -z "$MESSAGE" ]]; then
+    if [[ -n "$MESSAGE" ]]; then
       echo "$MESSAGE: it's not $YEAR in New York yet"
     fi
 
@@ -98,7 +98,7 @@ run_day() {
   if [[ "$#" -eq 0 ]]; then
     LANGS=(rust go ts js)
   else
-    LANGS="$@"
+    LANGS=("${@[@]}")
   fi
 
   for LANG in "${LANGS[@]}"; do
@@ -124,7 +124,7 @@ run_day() {
           echo
           ;;
 
-        ts )
+        js )
           echo "$YEAR/12/$DAY - JavaScript"
           npm run start
           echo
@@ -157,7 +157,7 @@ test_day() {
   if [[ "$#" -eq 0 ]]; then
     LANGS=(rust go ts js)
   else
-    LANGS="$@"
+    LANGS=("${@[@]}")
   fi
 
   for LANG in "${LANGS[@]}"; do
@@ -183,7 +183,7 @@ test_day() {
           echo
           ;;
 
-        ts )
+        js )
           echo "$YEAR/12/$DAY - JavaScript"
           npm run test
           echo
@@ -211,17 +211,21 @@ for_each_day() {
     echo "It's not $YEAR in New York yet"
     return 1
   elif [[ "$CURRENT_YEAR" -gt "$YEAR" ]]; then
+    # shellcheck disable=SC2207
     DAYS=($(seq -f "%02g" 1 25))
   else
     if [[ "$CURRENT_MONTH" -lt 12 ]]; then
       echo "It's not Decempter in New York yet"
       return 1
     elif [[ "$CURRENT_MONTH" -gt 12 ]]; then
+      # shellcheck disable=SC2207
       DAYS=($(seq -f "%02g" 1 25))
     else
       if [[ "$CURRENT_DAY" -lt 25 ]]; then
+        # shellcheck disable=SC2207
         DAYS=($(seq -f "%02g" 1 "$CURRENT_DAY"))
       else
+        # shellcheck disable=SC2207
         DAYS=($(seq -f "%02g" 1 25))
       fi
     fi
