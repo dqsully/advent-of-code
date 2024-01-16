@@ -30,7 +30,7 @@ There are no further optimizations for worst-case big-O complexity.
 
 There is a probabilistic optimization that can be made by searching forwards for the first digit and searching backwards for the last digit. If lines had a consistent distribution of digits within them, this would make the line parsing code tend towards `O(1/l)` on average, where `l` is line length. This would make the overall solution `O(n + n/l)` on average, `O(n)` worst-case.
 
-Also, this solution may benefit from explicit vectorization on modern hardware for a proportional reduction in time at a very high scale.
+This solution may benefit from explicit vectorization on modern hardware for a proportional reduction in time at a very high scale. This does not affect big-O complexity.
 
 This solution may also be multithreaded or converted into an ETL process if it's running at an insane scale, although at that point usually I/O bottlenecks become the main issue.
 
@@ -60,7 +60,7 @@ There are no further optimizations for worst-case big-O complexity.
 
 The same probabilistic optimization from part 1 also applies here too, although because of the digit-word matching, this would complicate the part 2 solution much more than for part 1.
 
-The digit-word matching could maybe be optimized by writing out a regex-like state machine for matching individual bytes, or more likely through explicit vectorization. Either way this would be much more complicated than `partial_line.starts_with(num_text)`.
+The digit-word matching could maybe be optimized by writing out a regex-like state machine for matching individual bytes, or more likely through explicit vectorization. Either way this would be much more complicated than `partial_line.starts_with(num_text)` for a small efficiency boost.
 
 I don't believe part 2 could be vectorized in most of the the same ways as part 1 because of the digit-word matching.
 
