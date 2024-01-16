@@ -28,7 +28,7 @@ where:
 
 There are no further optimizations for worst-case big-O complexity.
 
-There is a probabilistic optimization that can be made by searching forwards for the first digit and searching backwards for the last digit. If lines had a consistent distribution of digits within them, this would make the line parsing code tend towards `O(1/l)` on average, where `l` is line length. This would make the overall solution `O(n + n/l)` on average, `O(n)` worst-case.
+There is a probabilistic optimization that can be made by searching forwards for the first digit and searching backwards for the last digit. If lines had a consistent distribution of digits within them, this would make the line parsing code tend towards `O(1)` on average as the lines get longer and longer. There are `n/l` lines in the input, where `l` is line length, so this would make the overall solution `O(n + n/l)` on average, `O(n)` worst-case.
 
 This solution may benefit from explicit vectorization on modern hardware for a proportional reduction in time at a very high scale. This does not affect big-O complexity.
 
