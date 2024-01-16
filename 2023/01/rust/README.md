@@ -4,11 +4,11 @@
 
 ### Summary
 
-This was a very simple solution, both before and after cleaning it up. All I had to do was iterate over each character in a line, keep track of the first and last character digits, convert them into a 2-digit number, and sum those together.
+This an easy solution for me, both before and after cleaning it up. All I did was iterate over each character in a line, keep track of the first and last character digits, convert them into a 2-digit number, and sum those together.
 
 I didn't really think to use regex here because it's not as easy in Rust as it is in other languages, and I was racing against the rest of the world for my initial implementation.
 
-(Also, this was the first time I've ever done 'table-driven tests' in Rust, and it's awesome! The downside is that Rust's `macro_rules!` system is confusing, especially to a beginner, but the upside is that all of the Rust tooling (including rust-analyzer) can track the text inputs into how they're used, understanding that each line in the macro invocation is its own test!)
+(Also, this was the first time I've ever done 'table-driven tests' in Rust, and it's awesome! The downside is that Rust's `macro_rules!` system is confusing, especially to beginners, but the upside is that all of the Rust tooling (including rust-analyzer) can track the text inputs into how they're used, understanding that each line in the macro invocation is its own test!)
 
 ### Complexity
 
@@ -54,7 +54,7 @@ where:
 
 ### Further optimizations
 
-*Just like part 1, I wouldn't optimize any of this further unless it was really performance-critical code.* The digit-word matching is already fairly efficient and readable too.
+*Just like part 1, I wouldn't optimize any of this further unless it was really performance-critical code.* The digit-word matching is already efficient and readable too.
 
 There are no further optimizations for worst-case big-O complexity.
 
@@ -62,6 +62,6 @@ The same probabilistic optimization from part 1 also applies here too, although 
 
 The digit-word matching could maybe be optimized by writing out a regex-like state machine for matching individual bytes, or more likely through explicit vectorization. Either way this would be much more complicated than `partial_line.starts_with(num_text)`.
 
-I don't believe part 2 could be vectorized in the same way as part 1 because of the digit-word matching.
+I don't believe part 2 could be vectorized in most of the the same ways as part 1 because of the digit-word matching.
 
 This solution may also be multithreaded or converted into an ETL process, just like part 1.
