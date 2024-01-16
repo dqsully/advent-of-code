@@ -2,6 +2,11 @@
 
 These are my Advent of Code solutions starting from 2023.
 
+Years:
+* [2023](./2023) (13/25 Rust)
+
+## Running/writing solutions
+
 To get started, log into Advent of Code, find your `session` cookie value, and paste it into `session.txt`. Then, you can play around with the `./advent.sh` script to test/run my solutions for different days. Examples below:
 
 ```sh
