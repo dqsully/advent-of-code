@@ -24,19 +24,21 @@ where:
 
 ### Further optimizations
 
-*Unless this was really performance-critical code, I wouldn't apply any further optimizations.* I believe my solution for part 1 is very clear, and the code complexity introduced by any further optimizations wouldn't be worth the small increases in efficiency.
+_Unless this was really performance-critical code, I wouldn't apply any further optimizations._ I believe my solution for part 1 is very clear, and the code complexity introduced by any further optimizations wouldn't be worth the small increases in efficiency.
 
 There are no further optimizations for worst-case big-O complexity.
 
-Iterating over bytes instead of chars would likely provide a small improvement in runtime, since UTF-8 puts all multi-byte code points outside of the ASCII range, and we're only concerned about ASCII characters.
+High-performance optimizations:
 
-There is a probabilistic optimization that can be made by searching forwards for the first digit and searching backwards for the last digit. If lines had a consistent distribution of digits within them, this would make the line parsing code tend towards `O(1)` on average as the lines get longer and longer. There are `n/l` lines in the input, where `l` is line length, so this would make the overall solution `O(n + n/l)` on average, `O(n)` worst-case.
+- Iterating over bytes instead of chars would likely provide a small improvement in runtime. UTF-8 puts all multi-byte code points outside of the ASCII range, and we're only concerned about ASCII characters, so we can ignore everything else.
 
-OR, a different optimization would be to just parse all the text in one go, checking for newlines and digits at the same time. It's always `O(n)`, but it is likely faster than the probabilistic optimization I described because it parses each character exactly once. You would need to do benchmarking to be sure though.
+- Parsing all the text in one go instead of splitting by lines and then parsing each line should help as well because we read each byte only once.
 
-This solution may benefit from explicit vectorization on modern hardware, assuming the compiler isn't doing it all for you already.
+- OR, if we still split by each line and then search forwards for the first digit and search backwards for the last digit, that _might possibly_ be faster. This only works if somehow parsing individual bytes as digits is significantly more expensive than just finding a `\n` byte in a line. There's so many factors that go into this, including the distribution of digits in a line and how long the line is, so you would have to do lots of benchmarking to figure out if and when one optimization is better than the other. Also, this optimization works out to `O(n + n/l)` on average (given a known probability of digits in a line) and `O(n)` worst-case.
 
-This solution may also be multithreaded or converted into an ETL process if it's running at an insane scale, although at that point usually I/O bottlenecks become the main issue.
+- This solution may benefit from explicit vectorization on modern hardware, assuming the compiler isn't doing it all for you already.
+
+- This solution may also be multithreaded or converted into an ETL process if it's running at an insane scale, although at that point usually I/O bottlenecks become the main issue.
 
 ## Part 2
 
@@ -58,16 +60,20 @@ where:
 
 ### Further optimizations
 
-*Just like part 1, I wouldn't optimize any of this further unless it was really performance-critical code.* The digit-word matching is already efficient and readable too.
+_Just like part 1, I wouldn't optimize any of this further unless it was really performance-critical code._ The digit-word matching is already efficient and readable too.
 
 There are no further optimizations for worst-case big-O complexity.
 
-The same probabilistic optimization from part 1 also applies here too, although because of the digit-word matching, this would complicate the part 2 solution much more than for part 1.
+High-performance optimizations:
 
-Also, the same 'parse-as-you-go' optimization is possible here too, but because the digit-word matching is more computationally expensive than just checking individual bytes, the most optimal solution would depend on how long each line is and how often letters in digit-words show up. You would need to do lots of benchmarking to know for sure which option makes more sense for your input.
+- Just like in part 1, iterating over bytes would also probably improve runtime. However, it would make the digit-word matching more complicated.
 
-The digit-word matching could maybe be optimized by writing out a regex-like state machine for matching individual bytes, or more likely through explicit vectorization. Either way this would be much more complicated than `partial_line.starts_with(num_text)` for a small efficiency boost.
+- The 'parse-as-you-go' optimization from part 1 would also most likely be an improvement over my solution.
 
-I don't believe part 2 could be vectorized in most of the the same ways as part 1 because of the digit-word matching.
+- _However_, the probabilistic optimization from part 1 (finding a line, then parsing from the start and from the end for a single digit) is probably going to be better than the 'parse-as-you-go' optimization for part 2, since parsing a digit now requires a lot more work. Again, you would need to do lots of benchmarking to figure out which makes the most sense.
 
-This solution may also be multithreaded or converted into an ETL process, just like part 1.
+- The digit-word matching could probably be optimized by writing out a regex-like state machine for matching individual bytes, or more likely through explicit vectorization.
+
+- Many of the other places in part 1 where vectorization could help could apply to part 2 as well.
+
+- This solution may also be multithreaded or converted into an ETL process, just like part 1.
